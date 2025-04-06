@@ -7,7 +7,7 @@ run('../addPathToKernel');
 %---------------------------------------------------------------------------
 % Integration parameters.
 tMax = 10.0;                  % End time.
-plotSteps = 9;               % How many intermediate plots to produce?
+plotSteps = 50;               % How many intermediate plots to produce?
 t0 = 0;                      % Start time.
 singleStep = 0;              % Plot at each timestep (overrides tPlot).
 
@@ -26,8 +26,8 @@ doMin = 0;
 targetRadius = 1;
 V0 = 2.5;
 Vd = 1.0;
-Wd = 0.2;
-Kp = 1.5;
+Wd = 0.3;
+Kp = 1.0;
 Kd = 1.0;
 %---------------------------------------------------------------------------
 % What level set should we view?
@@ -52,7 +52,7 @@ useSubplots = 0;
 %---------------------------------------------------------------------------
 % Approximately how many grid cells?
 %   (Slightly different grid cell counts will be chosen for each dimension.)
-Nx = 51;
+Nx = 31;
 
 % Create the grid.
 g.dim = 4;
@@ -268,6 +268,29 @@ while(tMax - tNow > small * tMax)
   % view(view_az, view_el);
   
 end
+% Reshape the data matrix into columns (x, y, z, r, V)
+xVals = g.xs{1}; % Get x values from grid
+yVals = g.xs{2}; % Get y values from grid
+zVals = g.xs{3}; % Get z values from grid
+rVals = g.xs{4}; % Get r values from grid
+
+% Flatten the data to match (x, y, z, r, V)
+xFlat = xVals(:);
+yFlat = yVals(:);
+zFlat = zVals(:);
+rFlat = rVals(:);
+VFlat = data(:); % Assuming 'data' contains the velocity V values
+
+% Create a table with the desired format (x, y, z, r, V)
+outputTable = table(xFlat, yFlat, zFlat, rFlat, VFlat);
+
+% Write the table to an Excel file
+% Construct filename dynamically including Nx, Kp, Kd
+filename = sprintf('output_data_Nx%d_Kp%.2f_Kd%.2f.xlsx', Nx, Kp, Kd);
+
+% Write the table to an Excel file with the dynamic filename
+writetable(outputTable, filename);
+
 
 endTime = cputime;
 fprintf('Total execution time %g seconds\n', endTime - startTime);
