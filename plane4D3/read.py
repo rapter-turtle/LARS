@@ -2,17 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Step 1: Load the data from CSV
-data = np.loadtxt("/home/user/BEACLS/beacls/sources/samples/plane4D1/all_loop.csv", delimiter=",")  # Ensure the correct delimiter is used
+data = np.loadtxt("/home/user/BEACLS/beacls/sources/samples/plane4D3/all_loop.csv", delimiter=",")  # Ensure the correct delimiter is used
 
 # Grid parameters
-Nx = 11  # Number of points in x-direction
+Nx = 6  # Number of points in x-direction
 
 
 # Ensure data size matches the expected grid size
-assert data.size == Nx * Nx * Nx * Nx, f"Data size {data.size} does not match expected size {Nx * Nx * Nx * Nx}."
+assert data.size == Nx * Nx * Nx * Nx * Nx * Nx, f"Data size {data.size} does not match expected size {Nx * Nx * Nx * Nx * Nx * Nx}."
 
-# Reshape the data into a 3D grid
-data_3d = data.reshape((Nx, Nx, Nx, Nx)).transpose(3, 2, 1, 0)
+# Reshape the data into a 6D grid (Nx x Nx x Nx x Nx x Nx x Nx)
+data_3d = data.reshape((Nx, Nx, Nx, Nx, Nx, Nx)).transpose(5, 4, 3, 2, 1, 0)
 
 	# beacls::FloatVec mins{ (FLOAT_TYPE)-10, (FLOAT_TYPE)-5, (FLOAT_TYPE)-5,      (FLOAT_TYPE)-5 };
 	# beacls::FloatVec maxs{ (FLOAT_TYPE)2,(FLOAT_TYPE)5,(FLOAT_TYPE)5,(FLOAT_TYPE)5 };

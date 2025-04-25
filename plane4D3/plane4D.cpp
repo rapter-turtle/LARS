@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 	}
 
 
-	const FLOAT_TYPE tMax = 10;	//!< End time.
+	const FLOAT_TYPE tMax = 5;	//!< End time.
 	const FLOAT_TYPE dt = (FLOAT_TYPE)0.1;
 	const FLOAT_TYPE t0 = 0.0;	//!< Start time.
 	const size_t plotSteps = (size_t)std::ceil((tMax-t0)/dt)+1;	//!< How many intermediate plots to produce?
@@ -93,17 +93,17 @@ int main(int argc, char *argv[])
 	beacls::FloatVec mins{ (FLOAT_TYPE)-10, (FLOAT_TYPE)-5, (FLOAT_TYPE)-20, (FLOAT_TYPE)-20, (FLOAT_TYPE)(-M_PI), (FLOAT_TYPE)-10 };
 	beacls::FloatVec maxs{ (FLOAT_TYPE)2,(FLOAT_TYPE)5,(FLOAT_TYPE)20,(FLOAT_TYPE)20, (FLOAT_TYPE)(+M_PI), (FLOAT_TYPE)+10  };
 
-	beacls::FloatVec center{ (FLOAT_TYPE)-1, (FLOAT_TYPE)-1.5,  (FLOAT_TYPE)-5, (FLOAT_TYPE)-5, (FLOAT_TYPE)(-0.3*M_PI), (FLOAT_TYPE)-5 };
-	beacls::FloatVec widths{ (FLOAT_TYPE)1, (FLOAT_TYPE)1.5,  (FLOAT_TYPE)5, (FLOAT_TYPE)5, (FLOAT_TYPE)(0.3*M_PI), (FLOAT_TYPE)+5 };
+	beacls::FloatVec center{ (FLOAT_TYPE)-1, (FLOAT_TYPE)-1.5,  (FLOAT_TYPE)-5, (FLOAT_TYPE)-5, (FLOAT_TYPE)(-0.25*M_PI), (FLOAT_TYPE)-5 };
+	beacls::FloatVec widths{ (FLOAT_TYPE)1, (FLOAT_TYPE)1.5,  (FLOAT_TYPE)5, (FLOAT_TYPE)5, (FLOAT_TYPE)(0.25*M_PI), (FLOAT_TYPE)+5 };
 
 	beacls::FloatVec mask_center1{ (FLOAT_TYPE)-1, (FLOAT_TYPE)-1.5,  (FLOAT_TYPE)-50, (FLOAT_TYPE)-50, (FLOAT_TYPE)(-0.5*M_PI), (FLOAT_TYPE)-5  };
 	beacls::FloatVec mask_widths1{ (FLOAT_TYPE)1, (FLOAT_TYPE)1.5,  (FLOAT_TYPE)50, (FLOAT_TYPE)50, (FLOAT_TYPE)(0.5*M_PI), (FLOAT_TYPE)+5  };
 
-	beacls::FloatVec mask_center2{ (FLOAT_TYPE)-1, (FLOAT_TYPE)-5,  (FLOAT_TYPE)-100, (FLOAT_TYPE)-100, (FLOAT_TYPE)(-M_PI), (FLOAT_TYPE)-50  };
-	beacls::FloatVec mask_widths2{ (FLOAT_TYPE)2, (FLOAT_TYPE)5,  (FLOAT_TYPE)100, (FLOAT_TYPE)100, (FLOAT_TYPE)(+M_PI), (FLOAT_TYPE)+50  };
+	beacls::FloatVec mask_center2{ (FLOAT_TYPE)-1, (FLOAT_TYPE)-5,  (FLOAT_TYPE)-100, (FLOAT_TYPE)-100, (FLOAT_TYPE)(-2*M_PI), (FLOAT_TYPE)-50  };
+	beacls::FloatVec mask_widths2{ (FLOAT_TYPE)2, (FLOAT_TYPE)5,  (FLOAT_TYPE)100, (FLOAT_TYPE)100, (FLOAT_TYPE)(+2*M_PI), (FLOAT_TYPE)+50  };
 	
 
-	size_t Nx = 11;
+	size_t Nx = 6;
 	beacls::IntegerVec Ns(num_of_dimensions);
 	Ns.assign(num_of_dimensions, Nx);
 	// maxs[2] = (FLOAT_TYPE)(maxs[2] * (1 - 1. / Ns[2]));
@@ -124,8 +124,23 @@ int main(int argc, char *argv[])
 	  new levelset::ShapeRectangleByCorner(mask_center2, mask_widths2);	  
 
 
+
+
+
   levelset::HJI_Grid* hJI_Grid = helperOC::createGrid(mins, maxs, Ns, 
   	beacls::IntegerVec{2});	
+
+	levelset::AddGhostExtrapolate *addGhostExtrapolate = new levelset::AddGhostExtrapolate();
+	levelset::AddGhostPeriodic *addGhostPeriodic = new levelset::AddGhostPeriodic();
+	std::vector<levelset::BoundaryCondition*> boundaryConditions(6);
+	boundaryConditions[0] = addGhostExtrapolate;
+	boundaryConditions[1] = addGhostExtrapolate;
+	boundaryConditions[2] = addGhostExtrapolate;
+	boundaryConditions[3] = addGhostExtrapolate;
+	boundaryConditions[4] = addGhostPeriodic;
+	boundaryConditions[5] = addGhostExtrapolate;
+
+	hJI_Grid->set_boundaryConditions(boundaryConditions);
 
 	if (!hJI_Grid->processGrid()) {
 		return -1;
@@ -220,14 +235,17 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < data1.size(); ++i) {
         if (data1[i] <= 0 && data2[i] <= 0) {
             data3[i] = 100.0;
+			// data[i] = 100.0;
 			// std::cout << "1 : " << data3[i] << std::endl;
         }
 		else if (data1[i] > 0 && data2[i] <= 0){
 			data3[i] = -100.0;
+			// data[i] = 100.0;
 			// std::cout << "2 : " << data3[i] << std::endl;
 		}
 		else if (data1[i] > 0 && data2[i] > 0){
 			data3[i] = 100.0;
+			// data[i] = 100.0;
 			// std::cout << "3 : " << data3[i] << std::endl;
 		}
 		else{

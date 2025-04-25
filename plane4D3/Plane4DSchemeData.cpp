@@ -56,9 +56,9 @@ bool Plane4DSchemeData::hamFunc(
 		const FLOAT_TYPE V0 = 2.5;
 		const FLOAT_TYPE Vd = 1.0;
 		const FLOAT_TYPE Wd = 0.3;
-		const FLOAT_TYPE Kp = 2;
-		const FLOAT_TYPE Kd = 30; 
-		const FLOAT_TYPE Wr = 0.05; 
+		const FLOAT_TYPE Kp = 10;
+		const FLOAT_TYPE Kd = 1; 
+		const FLOAT_TYPE Wr = 0.1; 
 		const FLOAT_TYPE Yv = 15/37; 
 		
 		// hamValue[i] = -((-V0 + xs2_i ) * deriv0_i
@@ -109,8 +109,8 @@ bool Plane4DSchemeData::hamFunc(
 			+ Vd * HjiFabs(deriv1_i)
 			+ Wd * HjiFabs(deriv3_i)
 			+ xs5_i * deriv4_i
-			+ (Yv*(xs3_i*cos(xs4_i) - xs2_i*sin(xs4_i) - xs5_i) - ((- Kp * xs0_i - Kd * (- V0 + xs2_i))*cos(xs4_i) - (- Kp * xs1_i - Kd * (xs3_i))*sin(xs4_i))) * deriv5_i)
-			+ Wr * HjiFabs(deriv5_i);
+			+ (-Yv*(xs3_i*cos(xs4_i) - xs2_i*sin(xs4_i) - xs5_i) - 2*(xs2_i*cos(xs4_i) + xs3_i*sin(xs4_i))*xs5_i + (-(- Kp * xs0_i - Kd * (- V0 + xs2_i))*sin(xs4_i) + (- Kp * xs1_i - Kd * (xs3_i))*cos(xs4_i))) * deriv5_i
+			+ Wr * HjiFabs(deriv5_i));
 
 		}
 		else if (deriv0_i == 0 && deriv1_i != 0){
@@ -136,8 +136,8 @@ bool Plane4DSchemeData::hamFunc(
 			+ Vd * HjiFabs(deriv1_i)
 			+ Wd * HjiFabs(deriv3_i)
 			+ xs5_i * deriv4_i
-			+ (Yv*(xs3_i*cos(xs4_i) - xs2_i*sin(xs4_i) - xs5_i) - ((- Kp * xs0_i - Kd * (- V0 + xs2_i))*cos(xs4_i) - (- Kp * xs1_i - Kd * (xs3_i + Vd*deriv1_i/HjiFabs(deriv1_i)))*sin(xs4_i))) * deriv5_i)
-			+ Wr * HjiFabs(deriv5_i);
+			+ (-Yv*(xs3_i*cos(xs4_i) - xs2_i*sin(xs4_i) - xs5_i) - 2*(xs2_i*cos(xs4_i) + xs3_i*sin(xs4_i))*xs5_i + (-(- Kp * xs0_i - Kd * (- V0 + xs2_i))*sin(xs4_i) + (- Kp * xs1_i - Kd * (xs3_i + Vd*deriv1_i/HjiFabs(deriv1_i)))*cos(xs4_i))) * deriv5_i
+			+ Wr * HjiFabs(deriv5_i));
 
 		}
 		else if (deriv0_i != 0 && deriv1_i == 0){
@@ -163,8 +163,8 @@ bool Plane4DSchemeData::hamFunc(
 			+ Vd * HjiFabs(deriv1_i)
 			+ Wd * HjiFabs(deriv3_i)
 			+ xs5_i * deriv4_i
-			+ (Yv*(xs3_i*cos(xs4_i) - xs2_i*sin(xs4_i) - xs5_i) - ((- Kp * xs0_i - Kd * (- V0 + xs2_i + Vd*deriv0_i/HjiFabs(deriv0_i)))*cos(xs4_i) - (- Kp * xs1_i - Kd * (xs3_i))*sin(xs4_i))) * deriv5_i)
-			+ Wr * HjiFabs(deriv5_i);
+			+ (-Yv*(xs3_i*cos(xs4_i) - xs2_i*sin(xs4_i) - xs5_i) - 2*(xs2_i*cos(xs4_i) + xs3_i*sin(xs4_i))*xs5_i + (-(- Kp * xs0_i - Kd * (- V0 + xs2_i + Vd*deriv0_i/HjiFabs(deriv0_i)))*sin(xs4_i) + (- Kp * xs1_i - Kd * (xs3_i))*cos(xs4_i))) * deriv5_i
+			+ Wr * HjiFabs(deriv5_i));
 		}
 		else{
 			// hamValue[i] = -((-V0 + xs2_i ) * deriv0_i
@@ -189,12 +189,13 @@ bool Plane4DSchemeData::hamFunc(
 			+ Vd * HjiFabs(deriv1_i)
 			+ Wd * HjiFabs(deriv3_i)
 			+ xs5_i * deriv4_i
-			+ (Yv*(xs3_i*cos(xs4_i) - xs2_i*sin(xs4_i) - xs5_i) - ((- Kp * xs0_i - Kd * (- V0 + xs2_i + Vd*deriv0_i/HjiFabs(deriv0_i)))*cos(xs4_i) - (- Kp * xs1_i - Kd * (xs3_i + Vd*deriv1_i/HjiFabs(deriv1_i)))*sin(xs4_i))) * deriv5_i)
-			+ Wr * HjiFabs(deriv5_i);
+			+ (-Yv*(xs3_i*cos(xs4_i) - xs2_i*sin(xs4_i) - xs5_i) - 2*(xs2_i*cos(xs4_i) + xs3_i*sin(xs4_i))*xs5_i + (-(- Kp * xs0_i - Kd * (- V0 + xs2_i + Vd*deriv0_i/HjiFabs(deriv0_i)))*sin(xs4_i) + (- Kp * xs1_i - Kd * (xs3_i + Vd*deriv1_i/HjiFabs(deriv1_i)))*cos(xs4_i))) * deriv5_i
+			+ Wr * HjiFabs(deriv5_i));
 		}
 		
 	}
 	return true;
+
 }
 bool Plane4DSchemeData::partialFunc(
 	beacls::UVec& alphas_uvec,
@@ -216,9 +217,9 @@ bool Plane4DSchemeData::partialFunc(
 		const FLOAT_TYPE V0 = 2.5;
 		const FLOAT_TYPE Vd = 1.0;
 		const FLOAT_TYPE Wd = 0.3;
-		const FLOAT_TYPE Kp = 2;
-		const FLOAT_TYPE Kd = 30; 
-		const FLOAT_TYPE Wr = 0.05; 
+		const FLOAT_TYPE Kp = 10;
+		const FLOAT_TYPE Kd = 1; 
+		const FLOAT_TYPE Wr = 0.1; 
 		const FLOAT_TYPE Yv = 15/37; 
 		const beacls::FloatVec &xs2 = hji_grid->get_xs(2);
 		for (size_t i = 0; i<length; ++i) {
@@ -231,9 +232,9 @@ bool Plane4DSchemeData::partialFunc(
 		const FLOAT_TYPE V0 = 2.5;
 		const FLOAT_TYPE Vd = 1.0;
 		const FLOAT_TYPE Wd = 0.3;
-		const FLOAT_TYPE Kp = 2;
-		const FLOAT_TYPE Kd = 30; 
-		const FLOAT_TYPE Wr = 0.05; 
+		const FLOAT_TYPE Kp = 10;
+		const FLOAT_TYPE Kd = 1; 
+		const FLOAT_TYPE Wr = 0.1; 
 		const FLOAT_TYPE Yv = 15/37; 
 		const beacls::FloatVec &xs3 = hji_grid->get_xs(3);
 		for (size_t i = 0; i<length; ++i) {
@@ -246,9 +247,9 @@ bool Plane4DSchemeData::partialFunc(
 		const FLOAT_TYPE V0 = 2.5;
 		const FLOAT_TYPE Vd = 1.0;
 		const FLOAT_TYPE Wd = 0.3;
-		const FLOAT_TYPE Kp = 2;
-		const FLOAT_TYPE Kd = 30; 
-		const FLOAT_TYPE Wr = 0.05; 
+		const FLOAT_TYPE Kp = 10;
+		const FLOAT_TYPE Kd = 1; 
+		const FLOAT_TYPE Wr = 0.1; 
 		const FLOAT_TYPE Yv = 15/37; 
 		const beacls::FloatVec &xs0 = hji_grid->get_xs(0);
 		for (size_t i = 0; i<length; ++i) {
@@ -261,9 +262,9 @@ bool Plane4DSchemeData::partialFunc(
 		const FLOAT_TYPE V0 = 2.5;
 		const FLOAT_TYPE Vd = 1.0;
 		const FLOAT_TYPE Wd = 0.3;
-		const FLOAT_TYPE Kp = 2;
-		const FLOAT_TYPE Kd = 30; 
-		const FLOAT_TYPE Wr = 0.05; 
+		const FLOAT_TYPE Kp = 10;
+		const FLOAT_TYPE Kd = 1; 
+		const FLOAT_TYPE Wr = 0.1; 
 		const FLOAT_TYPE Yv = 15/37; 
 		const beacls::FloatVec &xs1 = hji_grid->get_xs(1);
 		for (size_t i = 0; i<length; ++i) {
@@ -276,9 +277,9 @@ bool Plane4DSchemeData::partialFunc(
 		const FLOAT_TYPE V0 = 2.5;
 		const FLOAT_TYPE Vd = 1.0;
 		const FLOAT_TYPE Wd = 0.3;
-		const FLOAT_TYPE Kp = 2;
-		const FLOAT_TYPE Kd = 30; 
-		const FLOAT_TYPE Wr = 0.05; 
+		const FLOAT_TYPE Kp = 10;
+		const FLOAT_TYPE Kd = 1; 
+		const FLOAT_TYPE Wr = 0.1; 
 		const FLOAT_TYPE Yv = 15/37; 
 		const beacls::FloatVec &xs5 = hji_grid->get_xs(5);
 		for (size_t i = 0; i<length; ++i) {
@@ -291,9 +292,9 @@ bool Plane4DSchemeData::partialFunc(
 		const FLOAT_TYPE V0 = 2.5;
 		const FLOAT_TYPE Vd = 1.0;
 		const FLOAT_TYPE Wd = 0.3;
-		const FLOAT_TYPE Kp = 2;
-		const FLOAT_TYPE Kd = 30; 
-		const FLOAT_TYPE Wr = 0.05; 
+		const FLOAT_TYPE Kp = 10;
+		const FLOAT_TYPE Kd = 1; 
+		const FLOAT_TYPE Wr = 0.1; 
 		const FLOAT_TYPE Yv = 15/37; 
 		const beacls::FloatVec &xs0 = hji_grid->get_xs(0);
 		const beacls::FloatVec &xs1 = hji_grid->get_xs(1);
