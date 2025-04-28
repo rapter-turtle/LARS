@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 	}
 
 
-	const FLOAT_TYPE tMax = 10;	//!< End time.
+	const FLOAT_TYPE tMax = 5;	//!< End time.
 	const FLOAT_TYPE dt = (FLOAT_TYPE)0.1;
 	const FLOAT_TYPE t0 = 0.0;	//!< Start time.
 	const size_t plotSteps = (size_t)std::ceil((tMax-t0)/dt)+1;	//!< How many intermediate plots to produce?
@@ -86,36 +86,16 @@ int main(int argc, char *argv[])
 
 	size_t num_of_dimensions = 4;
 
-	// dataone =  shapeRectangleByCorners(g, [-1;-1.5;-5;-5], [1; 1.5; 5;5]);
-	// data1 = shapeRectangleByCorners(g, [-1;-5.0;-100;-100], [2; 5.0; 100;100]);
-	// data2 = shapeRectangleByCorners(g, [-1;-1.5;-50;-50], [1; 1.5; 50;50]);
-	
-	beacls::FloatVec mins{ (FLOAT_TYPE)-10, (FLOAT_TYPE)-5, (FLOAT_TYPE)-10, (FLOAT_TYPE)-10 };
-	beacls::FloatVec maxs{ (FLOAT_TYPE)2,(FLOAT_TYPE)5,(FLOAT_TYPE)10,(FLOAT_TYPE)10 };
+	beacls::FloatVec mins{ (FLOAT_TYPE)-5, (FLOAT_TYPE)-3, (FLOAT_TYPE)-5, (FLOAT_TYPE)-5};
+	beacls::FloatVec maxs{ (FLOAT_TYPE)+1,(FLOAT_TYPE)+3,(FLOAT_TYPE)+5,(FLOAT_TYPE)+5 };
 
-	beacls::FloatVec center{ (FLOAT_TYPE)-1, (FLOAT_TYPE)-1.5,  (FLOAT_TYPE)-10, (FLOAT_TYPE)-10 };
-	beacls::FloatVec widths{ (FLOAT_TYPE)1, (FLOAT_TYPE)1.5,  (FLOAT_TYPE)10, (FLOAT_TYPE)10 };
-
-	beacls::FloatVec mask_center1{ (FLOAT_TYPE)-1, (FLOAT_TYPE)-1.5,  (FLOAT_TYPE)-50, (FLOAT_TYPE)-50 };
-	beacls::FloatVec mask_widths1{ (FLOAT_TYPE)1, (FLOAT_TYPE)1.5,  (FLOAT_TYPE)50, (FLOAT_TYPE)50 };
-
-	beacls::FloatVec mask_center2{ (FLOAT_TYPE)-1, (FLOAT_TYPE)-5,  (FLOAT_TYPE)-100, (FLOAT_TYPE)-100 };
-	beacls::FloatVec mask_widths2{ (FLOAT_TYPE)2, (FLOAT_TYPE)5,  (FLOAT_TYPE)100, (FLOAT_TYPE)100 };
-	
-	// beacls::FloatVec mins{ (FLOAT_TYPE)-10, (FLOAT_TYPE)-5, (FLOAT_TYPE)-5, (FLOAT_TYPE)-5 };
-	// beacls::FloatVec maxs{ (FLOAT_TYPE)2,(FLOAT_TYPE)5,(FLOAT_TYPE)5,(FLOAT_TYPE)5 };
-
-	// beacls::FloatVec center{ (FLOAT_TYPE)0.5, (FLOAT_TYPE)0,  (FLOAT_TYPE)0, (FLOAT_TYPE)0 };
-	// beacls::FloatVec widths{ (FLOAT_TYPE)1, (FLOAT_TYPE)1,  (FLOAT_TYPE)3, (FLOAT_TYPE)3 };
-
-	// beacls::FloatVec mask_center1{ (FLOAT_TYPE)1, (FLOAT_TYPE)0,  (FLOAT_TYPE)0, (FLOAT_TYPE)0 };
-	// beacls::FloatVec mask_widths1{ (FLOAT_TYPE)2, (FLOAT_TYPE)2,  (FLOAT_TYPE)3, (FLOAT_TYPE)3 };
-
-	// beacls::FloatVec mask_center2{ (FLOAT_TYPE)0, (FLOAT_TYPE)0,  (FLOAT_TYPE)0, (FLOAT_TYPE)0 };
-	// beacls::FloatVec mask_widths2{ (FLOAT_TYPE)10, (FLOAT_TYPE)5,  (FLOAT_TYPE)5, (FLOAT_TYPE)5 };
+	// beacls::FloatVec center{ (FLOAT_TYPE)0, (FLOAT_TYPE)0,  (FLOAT_TYPE)M_PI, (FLOAT_TYPE)9 };
+	// beacls::FloatVec widths{ (FLOAT_TYPE)2, (FLOAT_TYPE)2,  (FLOAT_TYPE)M_PI/2, (FLOAT_TYPE)1 };
+	beacls::FloatVec left{ (FLOAT_TYPE)-1, (FLOAT_TYPE)-1.5,  (FLOAT_TYPE)-5, (FLOAT_TYPE)-5 };
+	beacls::FloatVec right{ (FLOAT_TYPE)1, (FLOAT_TYPE)1.5,  (FLOAT_TYPE)5, (FLOAT_TYPE)5};
 
 
-	size_t Nx = 151;
+	size_t Nx = 11;
 	beacls::IntegerVec Ns(num_of_dimensions);
 	Ns.assign(num_of_dimensions, Nx);
 	// maxs[2] = (FLOAT_TYPE)(maxs[2] * (1 - 1. / Ns[2]));
@@ -123,32 +103,24 @@ int main(int argc, char *argv[])
 	FLOAT_TYPE wMax = 1;
 	beacls::FloatVec aranges{ (FLOAT_TYPE)0.5, 1 };
 
-	levelset::ShapeRectangleByCorner *shape = 
-	  new levelset::ShapeRectangleByCorner(center, widths);
-
-	levelset::ShapeRectangleByCorner *shape1 = 
-	  new levelset::ShapeRectangleByCorner(mask_center1, mask_widths1);
-
-	levelset::ShapeRectangleByCorner *shape2 = 
-	  new levelset::ShapeRectangleByCorner(mask_center2, mask_widths2);
-
-	levelset::ShapeRectangleByCorner *shape3 = 
-	  new levelset::ShapeRectangleByCorner(mask_center2, mask_widths2);	  
-
 	// levelset::ShapeRectangleByCenter *shape = 
 	//   new levelset::ShapeRectangleByCenter(center, widths);
+	levelset::ShapeRectangleByCorner *shape = 
+	new levelset::ShapeRectangleByCorner(left, right);	  
 
-	// levelset::ShapeRectangleByCenter *shape1 = 
-	//   new levelset::ShapeRectangleByCenter(mask_center1, mask_widths1);
-
-	// levelset::ShapeRectangleByCenter *shape2 = 
-	//   new levelset::ShapeRectangleByCenter(mask_center2, mask_widths2);
-
-	// levelset::ShapeRectangleByCenter *shape3 = 
-	//   new levelset::ShapeRectangleByCenter(mask_center2, mask_widths2);	  
+	// levelset::AddGhostExtrapolate *addGhostExtrapolate = new levelset::AddGhostExtrapolate();
+	// levelset::AddGhostPeriodic *addGhostPeriodic = new levelset::AddGhostPeriodic();
+	// std::vector<levelset::BoundaryCondition*> boundaryConditions(5);
+	// boundaryConditions[0] = addGhostExtrapolate;
+	// boundaryConditions[1] = addGhostExtrapolate;
+	// boundaryConditions[2] = addGhostExtrapolate;
+	// boundaryConditions[3] = addGhostExtrapolate;
+	// boundaryConditions[4] = addGhostPeriodic;
+	// boundaryConditions[5] = addGhostExtrapolate;
 
   levelset::HJI_Grid* hJI_Grid = helperOC::createGrid(mins, maxs, Ns, 
   	beacls::IntegerVec{2});	
+//   hJI_Grid->set_boundaryConditions(boundaryConditions);
 
 	if (!hJI_Grid->processGrid()) {
 		return -1;
@@ -224,40 +196,8 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	// beacls::FloatVec data;
-	// shape->execute(hJI_Grid, data);
-
 	beacls::FloatVec data;
-	beacls::FloatVec data1;
-	beacls::FloatVec data2;
-	beacls::FloatVec data3;
 	shape->execute(hJI_Grid, data);
-	shape1->execute(hJI_Grid, data1);
-	shape2->execute(hJI_Grid, data2);
-	shape3->execute(hJI_Grid, data3);
-	// std::cout << "data: " << data.size() << std::endl;
-	// std::cout << "data1: " << data1.size() << std::endl;
-	// std::cout << "data2: " << data2.size() << std::endl;
-	// std::cout << "data3: " << data3.size() << std::endl;
-
-	for (int i = 0; i < data1.size(); ++i) {
-        if (data1[i] <= 0 && data2[i] <= 0) {
-            data3[i] = 100.0;
-			// std::cout << "1 : " << data3[i] << std::endl;
-        }
-		else if (data1[i] > 0 && data2[i] <= 0){
-			data3[i] = -100.0;
-			// std::cout << "2 : " << data3[i] << std::endl;
-		}
-		else if (data1[i] > 0 && data2[i] > 0){
-			data3[i] = 100.0;
-			// std::cout << "3 : " << data3[i] << std::endl;
-		}
-		else{
-			data3[i] = 100.0;
-			// std::cout << "3 : " << data3[i] << std::endl;
-		}		
-    }
 
 	beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
 
@@ -271,6 +211,7 @@ int main(int argc, char *argv[])
 		ite != tau.cend(); ++ite) {
 		FLOAT_TYPE tNow = *(ite - 1);
 		FLOAT_TYPE tau_i = *ite;
+		// printf("dimension %d\n", num_of_dimensions);
 		while ((tau_i - tNow) > small *tau_i)
 		{
 			y0 = data;
@@ -292,7 +233,6 @@ int main(int argc, char *argv[])
 				line_length_of_chunk, num_of_threads, num_of_gpus,
 				delayedDerivMinMax, enable_user_defined_dynamics_on_gpu);
 			data = y;
-			// data = data3;
 
 			// Min with zero
 			if (minWith) {
@@ -301,11 +241,6 @@ int main(int argc, char *argv[])
 			printf("tNow = %f\n", tNow);
 
 		}
-
-		for (int i = 0; i < data.size(); ++i) {
-			data[i] = std::max(data[i], -data3[i]);
-		}		
-
 		datas.push_back(data);
 	}
 	if (dump_file) {
@@ -327,3 +262,4 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
