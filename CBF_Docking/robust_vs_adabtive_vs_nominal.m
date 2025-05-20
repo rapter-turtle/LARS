@@ -55,7 +55,7 @@ uy_origin = 0;
 f_max = 1;
 
 %% Control gains
-Kp = 0.05;  % Proportional gain
+Kp = 0.1;  % Proportional gain
 Kd = 2;
 alpha1 = 10;
 alpha2 = 10;
@@ -141,11 +141,11 @@ for i = 2:N
         % ux_origin = 0.0;%-Kp * (x(i-1) - xd(i-1)) - Kd * (x_dot(i-1) - xd_dot(i-1));
         % uy_origin = 0.0;%-Kp * (y(i-1) - yd(i-1)) - Kd * (y_dot(i-1) - yd_dot(i-1));
 
-        ux_origin = -Kp * (x(i-1) - xd(i-1)) - Kd * (x_dot(i-1) - xd_dot(i-1));
-        uy_origin = -Kp * (y(i-1) - yd(i-1)) - Kd * (y_dot(i-1) - yd_dot(i-1));
+        % ux_origin = -Kp * (x(i-1) - xd(i-1)) - Kd * (x_dot(i-1) - xd_dot(i-1));
+        % uy_origin = -Kp * (y(i-1) - yd(i-1)) - Kd * (y_dot(i-1) - yd_dot(i-1));
 
-        % ux_origin = -Kp * (x(i-1) - xd(i-1));
-        % uy_origin = 2;
+        ux_origin = -Kp * (x(i-1) - xd(i-1));
+        uy_origin = 2;
 
         %% Define decision variables (X)
         ux_opt = sdpvar(1,1);      
@@ -168,39 +168,32 @@ for i = 2:N
         % Constraints = [Constraints, (alpha1 + alpha2)*(-a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(-a*x(i-1) - y(i-1)) + (-a*ux_opt - uy_opt) - (a*w_max + w_max) + s2 >= 0];
               
         %% fea_Nominal
-        Constraints = [Constraints, (alpha1 + alpha2)*(a*ux_opt - uy_opt) + alpha1*alpha2*(a*x_dot(i-1) - y_dot(i-1)) + alpha_l*((alpha1 + alpha2)*(a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(a*x(i-1) - y(i-1)) + (-a*f_max - f_max)) + s1 >= 0];
-        Constraints = [Constraints, (alpha1 + alpha2)*(-a*ux_opt - uy_opt) + alpha1*alpha2*(-a*x_dot(i-1) - y_dot(i-1)) + alpha_r*((alpha1 + alpha2)*(-a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(-a*x(i-1) - y(i-1)) + (-a*f_max - f_max)) + s2 >= 0];
+        % Constraints = [Constraints, (alpha1 + alpha2)*(a*ux_opt - uy_opt) + alpha1*alpha2*(a*x_dot(i-1) - y_dot(i-1)) + alpha_l*((alpha1 + alpha2)*(a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(a*x(i-1) - y(i-1)) + (-a*f_max - f_max)) + s1 >= 0];
+        % Constraints = [Constraints, (alpha1 + alpha2)*(-a*ux_opt - uy_opt) + alpha1*alpha2*(-a*x_dot(i-1) - y_dot(i-1)) + alpha_r*((alpha1 + alpha2)*(-a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(-a*x(i-1) - y(i-1)) + (-a*f_max - f_max)) + s2 >= 0];
          
-        %% fea_RaCBF #1
-        % Constraints = [Constraints, (alpha1 + alpha2)*(a*ux_opt - uy_opt) + alpha1*alpha2*(a*x_dot(i-1) - y_dot(i-1)) + (a*x_dis_dot - y_dis_dot) - (a*DOB_bound + DOB_bound) + alpha_l*((alpha1 + alpha2)*(a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(a*x(i-1) - y(i-1)) + (-a*f_max - f_max) - (a*DOB_bound + DOB_bound) + (a*x_dis_estim(i-1) - y_dis_estim(i-1))) + s1 >= 0];
-        % Constraints = [Constraints, (alpha1 + alpha2)*(-a*ux_opt - uy_opt) + alpha1*alpha2*(-a*x_dot(i-1) - y_dot(i-1)) + (-a*x_dis_dot - y_dis_dot) - (a*DOB_bound + DOB_bound) + alpha_r*((alpha1 + alpha2)*(-a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(-a*x(i-1) - y(i-1)) + (-a*f_max - f_max) - (a*DOB_bound + DOB_bound) + (-a*x_dis_estim(i-1) - y_dis_estim(i-1))) + s2 >= 0];
-        
-        %% fea_RaCBF #2
-        % Constraints = [Constraints, (alpha1 + alpha2)*(a*ux_opt - uy_opt) + alpha1*alpha2*(a*x_dot(i-1) - y_dot(i-1)) + (a*x_dis_dot - y_dis_dot) + alpha_l*((alpha1 + alpha2)*(a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(a*x(i-1) - y(i-1)) + (-a*f_max - f_max) - (a*DOB_bound + DOB_bound) + (a*x_dis_estim(i-1) - y_dis_estim(i-1))) + s1 >= 0];
-        % Constraints = [Constraints, (alpha1 + alpha2)*(-a*ux_opt - uy_opt) + alpha1*alpha2*(-a*x_dot(i-1) - y_dot(i-1)) + (-a*x_dis_dot - y_dis_dot) + alpha_r*((alpha1 + alpha2)*(-a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(-a*x(i-1) - y(i-1)) + (-a*f_max - f_max) - (a*DOB_bound + DOB_bound) + (-a*x_dis_estim(i-1) - y_dis_estim(i-1))) + s2 >= 0];
+        %% fea_RaCBF
+        Constraints = [Constraints, (alpha1 + alpha2)*(a*ux_opt - uy_opt - (a*DOB_bound + DOB_bound) + (a*x_dis_estim(i-1) - y_dis_estim(i-1))) + alpha1*alpha2*(a*x_dot(i-1) - y_dot(i-1)) + (a*x_dis_dot - y_dis_dot) + alpha_l*((alpha1 + alpha2)*(a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(a*x(i-1) - y(i-1)) + (-a*f_max - f_max) - (a*DOB_bound + DOB_bound) + (a*x_dis_estim(i-1) - y_dis_estim(i-1))) + s1 >= 0];
+        Constraints = [Constraints, (alpha1 + alpha2)*(-a*ux_opt - uy_opt - (a*DOB_bound + DOB_bound) + (-a*x_dis_estim(i-1) - y_dis_estim(i-1))) + alpha1*alpha2*(-a*x_dot(i-1) - y_dot(i-1)) + (-a*x_dis_dot - y_dis_dot) + alpha_r*((alpha1 + alpha2)*(-a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(-a*x(i-1) - y(i-1)) + (-a*f_max - f_max) - (a*DOB_bound + DOB_bound) + (-a*x_dis_estim(i-1) - y_dis_estim(i-1))) + s2 >= 0];
                 
         %% fea_RCBF
         % Constraints = [Constraints, (alpha1 + alpha2)*(a*ux_opt - uy_opt) + alpha1*alpha2*(a*x_dot(i-1) - y_dot(i-1)) -(a*w_max + w_max) + alpha_l*((alpha1 + alpha2)*(a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(a*x(i-1) - y(i-1)) + (-a*f_max - f_max) - (a*w_max + w_max)) + s1 >= 0];
         % Constraints = [Constraints, (alpha1 + alpha2)*(-a*ux_opt - uy_opt) + alpha1*alpha2*(-a*x_dot(i-1) - y_dot(i-1)) -(a*w_max + w_max) + alpha_r*((alpha1 + alpha2)*(-a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(-a*x(i-1) - y(i-1)) + (-a*f_max - f_max) - (-a*w_max + w_max)) + s2 >= 0];
-
-        %% fixed fea_RCBF
-        % Constraints = [Constraints, (alpha1 + alpha2)*(a*ux_opt - uy_opt) + alpha1*alpha2*(a*x_dot(i-1) - y_dot(i-1)) -(a*w_max + w_max) + alpha_l*((alpha1 + alpha2)*(a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(a*x(i-1) - y(i-1)) + (-a*f_max - f_max) - (a*w_max + w_max)) + s1 >= 0];
-        % Constraints = [Constraints, (alpha1 + alpha2)*(-a*ux_opt - uy_opt) + alpha1*alpha2*(-a*x_dot(i-1) - y_dot(i-1)) -(a*w_max + w_max) + alpha_r*((alpha1 + alpha2)*(-a*x_dot(i-1) - y_dot(i-1)) + alpha1*alpha2*(-a*x(i-1) - y(i-1)) + (-a*f_max - f_max) - (-a*w_max + w_max)) + s2 >= 0];
-        % Constraints = [Constraints, uy_opt >= a*ux_opt + (-a*f_max - f_max) + (a*w_max + w_max)];
-        % Constraints = [Constraints, uy_opt >= -a*ux_opt + (-a*f_max - f_max) + (a*w_max + w_max)];
-        % Constraints = [Constraints, uy_opt <= a*ux_opt - (-a*f_max - f_max) - (a*w_max + w_max)];
-        % Constraints = [Constraints, uy_opt <= -a*ux_opt - (-a*f_max - f_max) - (a*w_max + w_max)];
 
         %% Define Constraints (ux, uy)
         Constraints = [Constraints, ux_opt <= f_max];
         Constraints = [Constraints, ux_opt >= -f_max];
         Constraints = [Constraints, uy_opt <= f_max];
         Constraints = [Constraints, uy_opt >= -f_max];
-        % 
-        Constraints = [Constraints, ux_opt <= ux_log(i-1) + 0.5*control_update_dt*f_max];
-        Constraints = [Constraints, ux_opt >= ux_log(i-1) - 0.5*control_update_dt*f_max];
-        Constraints = [Constraints, uy_opt <= uy_log(i-1) + 0.5*control_update_dt*f_max];
-        Constraints = [Constraints, uy_opt >= uy_log(i-1) - 0.5*control_update_dt*f_max];
+        
+        Constraints = [Constraints, ux_opt <= ux_log(i-1) + 5*control_update_dt*f_max];
+        Constraints = [Constraints, ux_opt >= ux_log(i-1) - 5*control_update_dt*f_max];
+        Constraints = [Constraints, uy_opt <= uy_log(i-1) + 5*control_update_dt*f_max];
+        Constraints = [Constraints, uy_opt >= uy_log(i-1) - 5*control_update_dt*f_max];
+
+        % Constraints = [Constraints, ux_opt <= ux_log(i-1) + 0.5*control_update_dt*f_max];
+        % Constraints = [Constraints, ux_opt >= ux_log(i-1) - 0.5*control_update_dt*f_max];
+        % Constraints = [Constraints, uy_opt <= uy_log(i-1) + 0.5*control_update_dt*f_max];
+        % Constraints = [Constraints, uy_opt >= uy_log(i-1) - 0.5*control_update_dt*f_max];
 
         %% Solve using SDPT3
         options = sdpsettings('solver', 'sdpt3', 'verbose', 0);
