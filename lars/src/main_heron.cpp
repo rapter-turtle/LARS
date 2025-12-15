@@ -2,6 +2,7 @@
 #include <std_msgs/msg/float64_multi_array.hpp>
 
 #include "reference_generator.hpp"
+#include "dob.hpp"
 #include "acados_solver_heron.h"
 
 #include "aura_msg/msg/mpc_state.hpp"
@@ -30,7 +31,8 @@ public:
             std::bind(&AuraMPC::ekf_callback, this, std::placeholders::_1));
 
         mpcvis_pub_ = this->create_publisher<aura_msg::msg::MPCTraj>("/mpc_vis", 10);
-
+        dob_pub_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+            "/DOB", 10);
 
         // Initial states
         x_ = ship_state_x;
@@ -68,6 +70,11 @@ public:
             std::chrono::duration<double>(dt_control_),
             std::bind(&AuraMPC::run, this));
 
+        dob_timer_ = this->create_wall_timer(
+            std::chrono::duration<double>(0.1),   // 10 Hz
+            std::bind(&AuraMPC::runDOB, this)
+        );            
+
         start_time_ = this->get_clock()->now();
 
         RCLCPP_INFO(this->get_logger(), "AuraMPC initialized.");
@@ -98,6 +105,31 @@ private:
         updateStateVector();
     }
 
+    void runDOB()
+    {
+        // EKF state 기반 DOB 수행
+        std::array<double,8> state_for_dob = {
+            states_[0], states_[1], states_[2],
+            states_[3], states_[4], states_[5],
+            states_[6], states_[7]
+        };
+
+        DOB::updateDOB(
+            state_for_dob,
+            dob_state_,
+            dob_dt_
+        );
+
+        // DOB publish (10 Hz)
+        std_msgs::msg::Float64MultiArray dob_msg;
+        dob_msg.data = {
+            dob_state_.param_filtered[0],
+            dob_state_.param_filtered[1],
+            dob_state_.param_filtered[2]
+        };
+
+        dob_pub_->publish(dob_msg);
+    }
 
     // ============================================================
     // MAIN MPC LOOP
@@ -175,11 +207,12 @@ private:
             
         }
     
+        
         // ---- 장애물 파라미터 설정 ----
         double obs[HERON_NP] = {
             1000.0, 40.0, 6.0,
             0.0, 1000.0, 8.0,
-            0.0, 0.0, 0.0
+            dob_state_.param_filtered[0],  dob_state_.param_filtered[1],  dob_state_.param_filtered[2]
         };
     
         for (int j = 0; j <= N_; j++)
@@ -222,25 +255,6 @@ private:
             F_ = 20.0;
         }
 
-        // double x_next[HERON_NX];
-        // ocp_nlp_out_get(
-        //     capsule_->nlp_config,
-        //     capsule_->nlp_dims,
-        //     capsule_->nlp_out,
-        //     1,         // stage 1 = next predicted state
-        //     "x",
-        //     x_next);
-        
-        // delta_ = x_next[6];
-        // F_     = x_next[7];
-
-
-        // RCLCPP_INFO(this->get_logger(),
-        // "[Control check] state (%.2f, %.2f), sum (%.2f, %.2f)", x_next[6], x_next[7], delta_, F_);
-
-        // ---- Control output ----
-        
-
         
         // ---- PWM 변환 + Publish ----
         double delta_pwm = convertSteeringToPWM(delta_);
@@ -260,27 +274,10 @@ private:
         // "[MPC] d_delta=%.2f d_throttle=%.2f", uMPC[0], uMPC[1]);
         
         // RCLCPP_INFO(this->get_logger(),
-        // "[MPC state] x=%.2f y=%.2f, delta=%.2f F=%.2f", states_[0], states_[1], states_[6], states_[7]);
-    
-
-        // for (int j = 0; j <= N_; j++)
-        // {
-        //     double xj[HERON_NX];
-        //     ocp_nlp_out_get(
-        //         capsule_->nlp_config,
-        //         capsule_->nlp_dims,
-        //         capsule_->nlp_out,
-        //         j,
-        //         "x",
-        //         xj);
+        // "[MPC state] x=%.2f y=%.2f, delta=%.2f F=%.2f", states_[0], states_[1], states_[6], states_[7]);      
         
-        //     RCLCPP_INFO(this->get_logger(),
-        //         "[PRED j=%02d] x=%.1f y=%.1f yaw=%.2f u=%.2f delta=%.2f F=%.2f",
-        //         j,
-        //         xj[0], xj[1], xj[2],
-        //         xj[3], xj[6], xj[7]);
-        // }
-        
+                RCLCPP_INFO(this->get_logger(),
+        "[DOB] du=%.2f, dv=%.2f, dr=%.2f", dob_state_.param_filtered[0], dob_state_.param_filtered[1], dob_state_.param_filtered[2]);     
         // ---- DEBUG PRINT ----
 
 
@@ -361,7 +358,7 @@ private:
         double obs_vis[HERON_NP] = {
             1000.0, 40.0, 6.0,
             0.0,   1000.0, 8.0,
-            0.0,   0.0, 0.0
+            0.0, 0.0, 0.0
         };
 
         for (int i = 0; i < 2; i++)
@@ -425,9 +422,9 @@ private:
             capsule_->nlp_in, capsule_->nlp_out,
             0, "ubx", states_);
 
-        RCLCPP_INFO(this->get_logger(),
-            "[MPC] x=%.2f y=%.2f yaw=%.2f u=%.2f v=%.2f r=%.2f  |  delta=%.2f F=%.2f",
-            states_[0], states_[1], states_[2], states_[3], states_[4], states_[5], states_[6], states_[7]);            
+        // RCLCPP_INFO(this->get_logger(),
+        //     "[MPC] x=%.2f y=%.2f yaw=%.2f u=%.2f v=%.2f r=%.2f  |  delta=%.2f F=%.2f",
+        //     states_[0], states_[1], states_[2], states_[3], states_[4], states_[5], states_[6], states_[7]);            
 
     }
 
@@ -468,7 +465,9 @@ private:
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr actuator_pub_;
     rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr ekf_sub_;
     rclcpp::Publisher<aura_msg::msg::MPCTraj>::SharedPtr mpcvis_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr dob_pub_;
     rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::TimerBase::SharedPtr dob_timer_;
 
     heron_solver_capsule *capsule_;
 
@@ -491,6 +490,10 @@ private:
     rclcpp::Time start_time_;
 
     double states_[HERON_NX];
+
+    // DOB
+    DOB::DOBState dob_state_;
+    double dob_dt_ = 0.1;   // Python과 동일
 };
 
 

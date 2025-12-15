@@ -174,8 +174,8 @@ class ShipSimulator(Node):
              (1/(1+np.exp(-s*F_cmd)))*(F_cmd + np.tanh(kappa*F_cmd)*a2)) 
 
         # Dynamics
-        u_dot = (- Xu*u - Xuu * np.sqrt(u * u + eps) * u + alpha1*T*np.cos(alpha2*delta))/M
-        v_dot = (-Yv*v - Yr*r - Yvv * np.sqrt(v* v + eps) * v + alpha3*T*np.sin(alpha2*delta))/M
+        u_dot = (- Xu*u - Xuu * np.sqrt(u * u + eps) * u + alpha1*T*np.cos(alpha2*delta))/M - 0.2
+        v_dot = (-Yv*v - Yr*r - Yvv * np.sqrt(v* v + eps) * v + alpha3*T*np.sin(alpha2*delta))/M - 0.3
         r_dot = (- Nr*r - Nv*v - Nrr * np.sqrt(r * r + eps) * r - alpha4*T*np.sin(alpha2*delta))/I
         # print(u, v, r, F_cmd)
 
