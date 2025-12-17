@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>lars</name>
+  <version>0.0.1</version>
+  <description>C++ MPC controller for inverted pendulum using acados</description>
+
+  <maintainer email="your@email.com">Your Name</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+
+
+
+  <build_depend>rclcpp</build_depend>
+  <exec_depend>rclcpp</exec_depend>
+
+  <!-- 시스템에 apt로 설치한 acados가 없기 때문에 -->
+  <!-- c_generated_code 안의 C 파일을 직접 컴파일해서 사용함 -->
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
