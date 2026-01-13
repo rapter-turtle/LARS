@@ -172,13 +172,13 @@ def export_heron_model():
     x_prime = MS_x + cbf_d*cos(MS_psi + 0.5*3.141592)
     y_prime = MS_y + cbf_d*sin(MS_psi + 0.5*3.141592)
     h_side = yn - tan(MS_psi)*xn - y_prime + tan(MS_psi)*x_prime 
-    h_side_dot = u*sin(psi) + v*cos(psi) - tan(MS_psi)*(-stream_speed + u*cos(psi) - v*sin(psi))
+    h_side_dot = u*sin(psi) + v*cos(psi) - tan(MS_psi)*(u*cos(psi) - v*sin(psi)- stream_speed)
     
     xh = xn + hp*cos(psi)    
     yh = yn + hp*sin(psi)
     xr = xh - CD_x    
     yr = yh - CD_y
-    xh_dot = -stream_speed + u*cos(psi) - v*sin(psi) - hp*r*sin(psi)
+    xh_dot = u*cos(psi) - v*sin(psi) - hp*r*sin(psi) - stream_speed
     yh_dot = u*sin(psi) + v*cos(psi) + hp*r*cos(psi)
 
     h_dock_left = cbf_a*tanh(cbf_b*(cbf_x0 - (cos(CD_psi)*xr + sin(CD_psi)*yr))) + cbf_y0 - sin(CD_psi)*xr + cos(CD_psi)*yr
@@ -239,8 +239,8 @@ def setup_trajectory_tracking(x0, N_horizon, Tf):
     # Q_mat_term = 2*np.diag([1e5, 1e5, 1e4, 1e-2, 1e-1, 1e1, 1e1, 1e-1])
     # R_mat = 2*np.diag([1e2, 1e-2])
 
-    Q_mat = 2*np.diag([1e2, 1e2, 1e5, 1e1, 1e3, 1e1, 1e1, 1e-1])
-    Q_mat_term = 2*np.diag([1e6, 1e6, 1e2, 1e2, 1e-1, 1e1, 1e1, 1e-1])
+    Q_mat = 2*np.diag([1e3, 1e3, 1e3, 1e1, 1e3, 1e1, 1e1, 1e-1])
+    Q_mat_term = 2*np.diag([1e5, 1e5, 1e4, 1e-2, 1e-1, 1e1, 1e1, 1e-1])
     R_mat = 2*np.diag([1e2, 1e-2])
 
     ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
@@ -279,8 +279,8 @@ def setup_trajectory_tracking(x0, N_horizon, Tf):
 
     ocp.constraints.idxsh = np.array([0,1,2])
     ocp.constraints.idxsh_e = np.array([0,1,2])
-    Zh = 1e5 * np.ones(num_obs)
-    zh = 1e5 * np.ones(num_obs)
+    Zh = 1e3 * np.ones(num_obs)
+    zh = 1e3 * np.ones(num_obs)
     ocp.cost.zl = zh
     ocp.cost.zu = zh
     ocp.cost.Zl = Zh
@@ -301,7 +301,7 @@ def setup_trajectory_tracking(x0, N_horizon, Tf):
     ocp.constraints.ubu = np.array([+steer_max*0.3,+10.0])
     ocp.constraints.idxbu = np.array([0, 1])
 
-    ocp.constraints.lbx = np.array([-steer_max, -10.0])
+    ocp.constraints.lbx = np.array([-steer_max, -5.0])
     ocp.constraints.ubx = np.array([steer_max, 25])    
     ocp.constraints.idxbx = np.array([6, 7])
 
@@ -312,7 +312,7 @@ def setup_trajectory_tracking(x0, N_horizon, Tf):
     ocp.solver_options.qp_solver = 'PARTIAL_CONDENSING_HPIPM' # FULL_CONDENSING_QPOASES
     ocp.solver_options.hessian_approx = 'GAUSS_NEWTON'
     ocp.solver_options.integrator_type = 'IRK'
-    ocp.solver_options.sim_method_newton_iter = 200
+    ocp.solver_options.sim_method_newton_iter = 70
     ocp.solver_options.nlp_solver_type = 'SQP_RTI'
     ocp.solver_options.qp_solver_cond_N = N_horizon
 

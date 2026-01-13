@@ -216,7 +216,7 @@ class ShipSimulator(Node):
         r_dis = 0.0
 
         u_dis = -np.sin(0.01*self.tt)*0.1
-        v_dis = -0.04*np.cos(psi) #np.cos(0.01*self.tt)*0.07
+        v_dis = -0.04*np.cos(psi) + np.cos(0.01*self.tt)*0.02
         r_dis = np.sin(0.01*self.tt)*np.cos(0.01*self.tt)*0.02
         
 
@@ -332,7 +332,7 @@ class ShipSimulator(Node):
         h_dock_right = a*np.tanh(b*(x0 - (np.cos(self.CD_psi)*xr + np.sin(self.CD_psi)*yr))) + y0 + np.sin(self.CD_psi)*xr - np.cos(self.CD_psi)*yr
         # print("[Dock CBF] Left : ",h_dock_left,", ",h_dock_right )
         # print("stream speed : ", self.real_stream)
-
+        
 
         return next_state
 

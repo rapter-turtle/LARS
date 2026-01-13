@@ -62,7 +62,7 @@ inline void updateDOB(
     // constexpr double alpha3 = 0.0188;
     // constexpr double alpha4 = 0.0193;
 
-    constexpr double w_cutoff = 1.0;
+    constexpr double w_cutoff = 0.5;
     constexpr double gain = -1.0;
     constexpr double eps = 1e-6;
 

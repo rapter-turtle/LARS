@@ -47,9 +47,9 @@ struct UVRFilterLPF
     double r_hat = 0.0;
 
     // tuning: time constants [s]
-    double tau_u = 0.1;
-    double tau_v = 0.1;
-    double tau_r = 0.1;
+    double tau_u = 0.01;
+    double tau_v = 0.01;
+    double tau_r = 0.01;
 
     void reset(double x, double y, double psi)
     {
@@ -127,9 +127,9 @@ struct UVREKF
 
     // ---- tuning parameters ----
     // measurement noise (분산)
-    double R_x   = 0.25;                         // (m^2)  -> std 0.5m
-    double R_y   = 0.25;                         // (m^2)
-    double R_psi = (2.0 * M_PI / 180.0) * (2.0 * M_PI / 180.0); // (rad^2) -> 2deg
+    double R_x   = 0.1;                         // (m^2)  -> std 0.5m
+    double R_y   = 0.1;                         // (m^2)
+    double R_psi = (1.0 * M_PI / 180.0) * (1.0 * M_PI / 180.0); // (rad^2) -> 2deg
 
     // process noise (random walk strength) : 분산/초 느낌으로 dt 곱해서 반영
     double Q_u = 4.0;                           // (m/s)^2

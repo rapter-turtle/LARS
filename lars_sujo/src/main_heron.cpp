@@ -121,6 +121,8 @@ public:
         cbf_x0 = -10.0;
         cbf_y0 = 3.5;
 
+        only_xypsi = false;
+
         // === Create ACADOS solver ===
         capsule_ = heron_acados_create_capsule();
 
@@ -420,77 +422,79 @@ private:
     // ============================================================
     // EKF Callback
     // ============================================================
-    // void ekf_callback(const std_msgs::msg::Float64MultiArray::SharedPtr msg)
-    // {
-  
-    //     // const double real_x_   = msg->data[0];
-    //     // const double real_y_   = msg->data[1];
-    //     // const double real_psi_ = msg->data[2];
-    //     const double real_u_   = msg->data[3];
-    //     const double real_v_   = msg->data[4];
-    //     const double real_r_   = msg->data[5];
-
-
-    //     if (msg->data.size() < 3) return;
-
-    //     const double x_meas   = msg->data[0];
-    //     const double y_meas   = msg->data[1];
-    //     const double psi_meas = msg->data[2];
-    
-    //     auto now = this->get_clock()->now();
-    
-    //     if (!pose_time_init_)
-    //     {
-    //         pose_time_init_ = true;
-    //         last_pose_time_ = now;
-    //         updateStateVector();
-    
-    
-    //         // RCLCPP_INFO(this->get_logger(),
-    //         // "[MPC] u=%.2f v=%.2f r=%.2f real_u=%.2f real_v=%.2f real_r=%.2f dt = %.2f",
-    //         // u_, v_, r_, real_u_, real_v_, real_r_ , dt);
-    
-    //     }
-    
-    //     const double dt = (now - last_pose_time_).seconds();
-    //     last_pose_time_ = now;
-    
-    //     // dt가 비정상적으로 크거나 작으면 방어
-    //     if (dt <= 1e-4 || dt > 2.0) return;
-    
-    //     // ---- (추천) EKF step ----
-    //     uvr_ekf_.step(x_meas, y_meas, psi_meas, dt);
-    
-    //     // 네 MPC 상태에 반영
-    //     x_   = x_meas;
-    //     y_   = y_meas;
-    //     yaw_ = uvr_ekf_.x[2];  // 필터된 psi
-    //     u_   = uvr_ekf_.u();
-    //     v_   = uvr_ekf_.v();
-    //     r_   = uvr_ekf_.r();
-    
-    //     updateStateVector();
-
-
-    //     // RCLCPP_INFO(this->get_logger(),
-    //     // "[MPC] u=%.2f real_u=%.2f  dt = %.2f",
-    //     // u_, real_u_, dt);
-
-    // }    
-    
     void ekf_callback(const std_msgs::msg::Float64MultiArray::SharedPtr msg)
     {
-        if (msg->data.size() < 6) return;
+        if (only_xypsi){
+        // const double real_x_   = msg->data[0];
+        // const double real_y_   = msg->data[1];
+        // const double real_psi_ = msg->data[2];
+        const double real_u_   = msg->data[3];
+        const double real_v_   = msg->data[4];
+        const double real_r_   = msg->data[5];
 
-        x_ = msg->data[0];
-        y_ = msg->data[1];
-        yaw_ = yaw_unwrap(msg->data[2], yaw_);
-        u_ = msg->data[3];
-        v_ = msg->data[4];
-        r_ = msg->data[5];
 
+        if (msg->data.size() < 3) return;
+
+        const double x_meas   = msg->data[0];
+        const double y_meas   = msg->data[1];
+        const double psi_meas = msg->data[2];
+    
+        auto now = this->get_clock()->now();
+    
+        if (!pose_time_init_)
+        {
+            pose_time_init_ = true;
+            last_pose_time_ = now;
+            updateStateVector();
+    
+    
+            // RCLCPP_INFO(this->get_logger(),
+            // "[MPC] u=%.2f v=%.2f r=%.2f real_u=%.2f real_v=%.2f real_r=%.2f dt = %.2f",
+            // u_, v_, r_, real_u_, real_v_, real_r_ , dt);
+    
+        }
+    
+        const double dt = (now - last_pose_time_).seconds();
+        last_pose_time_ = now;
+    
+        // dt가 비정상적으로 크거나 작으면 방어
+        if (dt <= 1e-4 || dt > 2.0) return;
+    
+        // ---- (추천) EKF step ----
+        uvr_ekf_.step(x_meas, y_meas, psi_meas, dt);
+    
+        // 네 MPC 상태에 반영
+        x_   = x_meas;
+        y_   = y_meas;
+        yaw_ = msg->data[2];  // 필터된 psi
+        u_   = uvr_ekf_.u();
+        v_   = uvr_ekf_.v();
+        r_   = uvr_ekf_.r();
+    
         updateStateVector();
-    }
+
+
+        RCLCPP_INFO(this->get_logger(),
+        "[MPC] u=%.2f v=%.2f r=%.2f real_u=%.2f real_v=%.2f real_r=%.2f dt = %.2f",
+        u_, v_, r_, real_u_, real_v_, real_r_ , dt);
+
+
+        }
+        else{
+            if (msg->data.size() < 6) return;
+
+            x_ = msg->data[0];
+            y_ = msg->data[1];
+            yaw_ = yaw_unwrap(msg->data[2], yaw_);
+            u_ = msg->data[3];
+            v_ = msg->data[4];
+            r_ = msg->data[5];
+
+            updateStateVector();
+        }
+
+    }    
+    
 
     void lars_state_callback(const std_msgs::msg::Float64MultiArray::SharedPtr msg)
     {
@@ -696,6 +700,9 @@ private:
 
         if (F_ > 25.0){
             F_ = 25.0;
+        }
+        else if (F_ < -5.0){
+            F_ = -5;
         }
         
         if (delta_ > 6000*3.1415/180){
@@ -1077,6 +1084,8 @@ private:
     double cbf_b;
     double cbf_x0;
     double cbf_y0;
+
+    bool only_xypsi;
 
 
     std::string param_txt_path_ = "/home/user/aura_ws/src/lars/config/mpc_params.txt";
