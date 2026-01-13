@@ -11,8 +11,8 @@ offset_y=4118000.0
 cradle_x_rel=4.0
 
 # --- switching logic ---
-duration_time=0.5
-dp_dist=3.5
+duration_time=1.0
+dp_dist=3.0
 
 # --- stream ---
 stream_speed=3.0
@@ -21,13 +21,13 @@ stream_speed=3.0
 dock_radius=2.0
 
 # --- Control Parameter ---
-alpha_side=1.0
+alpha_side=2.0
 alpha_dock=0.001
 cbf_d=4
 cbf_a=3.0
 cbf_b=0.5
 cbf_x0=-4.0
-cbf_y0=4.5   
+cbf_y0=3.5   
 
 # --- Model Parameter ---
 Xu=0.0

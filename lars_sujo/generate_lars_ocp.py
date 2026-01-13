@@ -239,8 +239,8 @@ def setup_trajectory_tracking(x0, N_horizon, Tf):
     # Q_mat_term = 2*np.diag([1e5, 1e5, 1e4, 1e-2, 1e-1, 1e1, 1e1, 1e-1])
     # R_mat = 2*np.diag([1e2, 1e-2])
 
-    Q_mat = 2*np.diag([1e3, 1e3, 1e3, 1e1, 1e3, 1e1, 1e1, 1e-1])
-    Q_mat_term = 2*np.diag([1e5, 1e5, 1e4, 1e-2, 1e-1, 1e1, 1e1, 1e-1])
+    Q_mat = 2*np.diag([1e3, 1e3, 1e5, 1e1, 1e3, 1e2, 1e1, 1e-1])
+    Q_mat_term = 2*np.diag([1e5, 1e5, 1e4, 1e-2, 1e-1, 1e2, 1e1, 1e-1])
     R_mat = 2*np.diag([1e2, 1e-2])
 
     ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
@@ -279,8 +279,8 @@ def setup_trajectory_tracking(x0, N_horizon, Tf):
 
     ocp.constraints.idxsh = np.array([0,1,2])
     ocp.constraints.idxsh_e = np.array([0,1,2])
-    Zh = 1e3 * np.ones(num_obs)
-    zh = 1e3 * np.ones(num_obs)
+    Zh = 1e5 * np.ones(num_obs)
+    zh = 1e5 * np.ones(num_obs)
     ocp.cost.zl = zh
     ocp.cost.zu = zh
     ocp.cost.Zl = Zh
@@ -312,7 +312,7 @@ def setup_trajectory_tracking(x0, N_horizon, Tf):
     ocp.solver_options.qp_solver = 'PARTIAL_CONDENSING_HPIPM' # FULL_CONDENSING_QPOASES
     ocp.solver_options.hessian_approx = 'GAUSS_NEWTON'
     ocp.solver_options.integrator_type = 'IRK'
-    ocp.solver_options.sim_method_newton_iter = 70
+    ocp.solver_options.sim_method_newton_iter = 150
     ocp.solver_options.nlp_solver_type = 'SQP_RTI'
     ocp.solver_options.qp_solver_cond_N = N_horizon
 
