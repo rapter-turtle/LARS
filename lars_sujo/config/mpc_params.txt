@@ -1,0 +1,52 @@
+# --- docking point relative ---
+DP_x_rel=-9.0
+DP_y_rel=-1.0
+DP_psi_rel=0.0
+
+# --- offsets (global origin) ---
+offset_x=290245.0
+offset_y=4118000.0
+
+# --- cradle geometry ---
+cradle_x_rel=4.0
+
+# --- switching logic ---
+duration_time=1.0
+dp_dist=2.5
+
+# --- stream ---
+stream_speed=3.0
+
+# --- docking logic ---
+dock_radius=2.0
+
+# --- Control Parameter ---
+alpha_side=1.0
+alpha_dock=0.001
+cbf_d=4
+cbf_a=3.0
+cbf_b=0.5
+cbf_x0=-5.0
+cbf_y0=3.5   
+
+# --- Model Parameter ---
+Xu=0.0
+Xuu=-0.0165
+Yv=-0.0323
+Yvv=0.0
+Yr=-0.0
+Yrr=0.0
+Yrrr=-0.0
+Nr=-1.359
+Nrr=0.0
+Nrrr=0.0
+Nv=-0.1991
+u_F=0.0221
+v_F=0.0224
+r_F=0.0376
+
+Xu_dot=0.0
+Yv_dot=0.0
+Nr_dot=0.0
+M=1.0
+I=1.0
