@@ -215,8 +215,8 @@ class ShipSimulator(Node):
         v_dis = 0.0
         r_dis = 0.0
 
-        u_dis = -np.sin(0.01*self.tt)*0.1
-        v_dis = -0.05*np.cos(psi) + np.cos(0.01*self.tt)*0.03
+        u_dis = -np.sin(0.01*self.tt)*0.2
+        v_dis = -0.05*np.cos(psi) + np.cos(0.01*self.tt)*0.05
         r_dis = np.sin(0.01*self.tt)*np.cos(0.01*self.tt)*0.02
         
 

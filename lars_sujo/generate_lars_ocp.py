@@ -302,7 +302,7 @@ def setup_trajectory_tracking(x0, N_horizon, Tf):
     ocp.constraints.idxbu = np.array([0, 1])
 
     ocp.constraints.lbx = np.array([-steer_max, -5.0])
-    ocp.constraints.ubx = np.array([steer_max, 25])    
+    ocp.constraints.ubx = np.array([steer_max, 20])    
     ocp.constraints.idxbx = np.array([6, 7])
 
 

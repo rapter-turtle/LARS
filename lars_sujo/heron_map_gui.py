@@ -480,7 +480,7 @@ class SensorFusionEKF(Node):
         self.v_sensor_data.append(self.v_sensor)
         self.r_sensor_data.append(self.r_sensor)
 
-        self.steering_data.append(self.steering)
+        self.steering_data.append(self.steering*1000.0)
         self.throttle_data.append(self.throttle)
 
         self.DOB_u_data.append(100.0*self.DOB_u)
@@ -597,7 +597,7 @@ class SensorFusionEKF(Node):
             self.line6_left.set_data(self.time_data, self.steering_data)
             self.line6_right.set_data(self.time_data, self.throttle_data)
             self.ax6.set_xlim(self.time_data[-1] - 20, self.time_data[-1])
-            self.ax6.set_ylim(1000.0, 2000.0)
+            self.ax6.set_ylim(-500.0, 5000.0)
 
             # self.line7_left.set_data(self.time_data, self.steering_data)
             self.line7_right.set_data(self.time_data, self.DOB_u_data)

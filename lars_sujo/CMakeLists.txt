@@ -50,7 +50,7 @@ list(FILTER GEN_C_SOURCES EXCLUDE REGEX ".*main_.*\\.c$")
 # Build executable
 # ===============================================================
 add_executable(heron_mpc
-    src/main_heron.cpp
+    src/main_heron_mpc.cpp
     ${GEN_C_SOURCES}
 )
 

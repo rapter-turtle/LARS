@@ -12,7 +12,7 @@ cradle_x_rel=4.0
 
 # --- switching logic ---
 duration_time=1.0
-dp_dist=2.0
+dp_dist=3.0
 
 # --- stream ---
 stream_speed=3.0
@@ -22,7 +22,7 @@ dock_radius=2.5
 
 # --- Control Parameter ---
 hp=3.0
-alpha_side=5.0
+alpha_side=2.0
 alpha_dock=1.0
 cbf_d=4
 cbf_a=3.0
@@ -33,6 +33,7 @@ cbf_y0=3.5
 # --- Ending phase Parameter ---
 final_boost_radius=3.0
 final_end_radius=1.0
+
 
 
 # =========================
@@ -46,10 +47,10 @@ Q_x     = 1e3
 Q_y     = 1e3
 Q_psi   = 1e5
 Q_u     = 1e1
-Q_v     = 1e5
+Q_v     = 1e3
 Q_r     = 1e2
 Q_delta = 1e1
-Q_F     = 1e1
+Q_F     = 1e-1
 
 # ---- Terminal QN ----
 QN_x     = 1e5
@@ -62,8 +63,8 @@ QN_delta = 1e1
 QN_F     = 1e-1
 
 # ---- Input R ----
-R_ddelta = 1e1
-R_dF     = 1e-1
+R_ddelta = 1e2
+R_dF     = 1e-2
 
 
 
@@ -102,7 +103,7 @@ I=1.0
 #Q_v     = 1e3
 #Q_r     = 1e2
 #Q_delta = 1e1
-#Q_F     = 1e0
+#Q_F     = 1e-1
 
 # ---- Terminal QN ----
 #QN_x     = 1e5
