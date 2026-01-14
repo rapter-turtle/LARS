@@ -219,23 +219,39 @@ class SensorFusionEKF(Node):
         self.ax9.set_ylabel('DOB_r')                
                      
 
+        scale = 1/(x_actual_max - x_actual_min)*self.map_width
         self.arrow_length = 3.0/(x_actual_max - x_actual_min)*self.map_width
         size = 1.5
-        hullLength = 0.7 * size  # Length of the hull
-        hullWidth = 0.2 * size  # Width of each hull
-        separation = 0.45 * size  # Distance between the two hulls
-        bodyWidth = 0.25 * size  # Width of the body connecting the hulls
+        hullLength = 7.0  # Length of the hull
+        hullWidth = 2.75  # Width of each hull
+        shape_ratio = 0.6
+        separation = 0.0  # Distance between the two hulls
+        bodyWidth = 2.75  # Width of the body connecting the hulls
+
+
+        # self.CD_shape_local = scale*np.array([
+        #     [ cradle_w/2,  cradle_h/2],
+        #     [-cradle_w/2,  cradle_h/2],
+        #     [-cradle_w/2, -cradle_h/2],
+        #     [ cradle_w/2, -cradle_h/2],
+        # ])
 
         # Define the vertices of the two hulls
-        self.hull1 = np.array([[-hullLength / 2, hullLength / 2, hullLength / 2, -hullLength / 2, -hullLength / 2, -hullLength / 2],
-                               [hullWidth / 2, hullWidth / 2, -hullWidth / 2, -hullWidth / 2, 0, hullWidth / 2]])
+        self.hull1 = scale*np.array([
+            [ hullLength/2,  hullLength*shape_ratio/2, -hullLength/2, -hullLength/2, hullLength*shape_ratio/2],
+            [ 0.0,  hullWidth/2,  hullWidth/2,  -hullWidth/2,  -hullWidth/2]
+        ])
 
-        self.hull2 = np.array([[-hullLength / 2, hullLength / 2, hullLength / 2, -hullLength / 2, -hullLength / 2, -hullLength / 2],
-                               [hullWidth / 2, hullWidth / 2, -hullWidth / 2, -hullWidth / 2, 0, hullWidth / 2]])
+        self.hull2 = scale*np.array([
+            [ hullLength/2,  hullLength*shape_ratio/2, -hullLength/2, -hullLength/2, hullLength*shape_ratio/2],
+            [ 0.0,  hullWidth/2,  hullWidth/2,  -hullWidth/2,  -hullWidth/2]
+        ])
 
         # Define the vertices of the body connecting the hulls
-        self.body = np.array([[-bodyWidth / 2, bodyWidth / 2, bodyWidth / 2, -bodyWidth / 2, -bodyWidth / 2],
-                              [(separation - hullWidth) / 2, (separation - hullWidth) / 2, -(separation - hullWidth) / 2, -(separation - hullWidth) / 2, (separation - hullWidth) / 2]])
+        self.body = scale*np.array([
+            [ hullLength/2,  hullLength*shape_ratio/2, -hullLength/2, -hullLength/2, hullLength*shape_ratio/2],
+            [ 0.0,  hullWidth/2,  hullWidth/2,  -hullWidth/2,  -hullWidth/2]
+        ])
 
         # Combine hulls into a single structure
         self.hull1[1, :] = self.hull1[1, :] + separation / 2
@@ -308,12 +324,14 @@ class SensorFusionEKF(Node):
 
         # ================= Mission Ship (Pentagon) =================
         # Local-frame pentagon (nose forward, x-axis forward)
-        self.MS_shape_local = np.array([
-            [ 10.0, 0.0],
-            [ 8, 3],
-            [ -10,3],
-            [ -10,-3],
-            [ 8,-3],
+
+        scale = 1/(x_actual_max - x_actual_min)*self.map_width
+        self.MS_shape_local = scale*np.array([
+            [ 30.0, 0.0],
+            [ 20, 10],
+            [ -30,10],
+            [ -30,-10],
+            [ 20,-10],
             # [ 0.0,  10.0],
             # [  3,  8],
             # [  3, -10],
@@ -333,10 +351,10 @@ class SensorFusionEKF(Node):
         self.ax1.add_patch(self.MS_patch)
 
         # ================= Cradle (Grey structure) =================
-        cradle_w = 4.0
-        cradle_h = 2.0
+        cradle_w = 8.0
+        cradle_h = 4.0
 
-        self.CD_shape_local = np.array([
+        self.CD_shape_local = scale*np.array([
             [ cradle_w/2,  cradle_h/2],
             [-cradle_w/2,  cradle_h/2],
             [-cradle_w/2, -cradle_h/2],

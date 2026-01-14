@@ -23,6 +23,7 @@ inline void updateDOB(
     const std::array<double,8>& state,   // [x,y,psi,u,v,r,delta,F]
     DOBState& dob,
     double dt, 
+    double stream_speed, 
     double Xu, 
     double Xuu,
     double Yv,
@@ -61,7 +62,7 @@ inline void updateDOB(
     // constexpr double alpha3 = 0.0188;
     // constexpr double alpha4 = 0.0193;
 
-    constexpr double w_cutoff = 1.0;
+    constexpr double w_cutoff = 0.2;
     constexpr double gain = -1.0;
     constexpr double eps = 1e-6;
 
@@ -71,35 +72,24 @@ inline void updateDOB(
     const double u = state[3];
     const double v = state[4];
     const double r = state[5];
+    const double psi = state[2];
     const double F_eff = state[7];
     const double delta = state[6]*0.01;
 
-    // -----------------------------
-    // Thrust model
-    // -----------------------------
-    constexpr double s = 25.0;
-    constexpr double k = 8.0;
-    constexpr double a1 = 2.2 * 2.2;
-    constexpr double a2 = 2.2 * 2.2;
-    constexpr double b11 = 1.0;
-    constexpr double b22 = 1.0;
+    const double ur = u + stream_speed*cos(psi);
+    const double vr = v - stream_speed*sin(psi);
 
-    // const double T =
-    //     (1.0 / (1.0 + std::exp(s * F_eff))) *
-    //         (b11 * F_eff + std::tanh(k * F_eff) * a1)
-    //   + (1.0 / (1.0 + std::exp(-s * F_eff))) *
-    //         (b22 * F_eff + std::tanh(k * F_eff) * a2);
-
+    // std::cout << "delta=" << delta << "\n";
     const double T = F_eff;
     // -----------------------------
     // Nominal dynamics f(x)
     // -----------------------------
     std::array<double,3> f_usv {{
-        (Xu * u + Xuu * std::sqrt(u*u + eps) * u + u_F * T * std::cos(delta))/(M + Xu_dot),
+        (Xu * ur + Xuu * std::sqrt(ur*ur + eps) * ur + u_F * T * std::cos(delta))/(M + Xu_dot),
 
-        (Yv * v + Yr * r + Yvv * std::sqrt(v*v + eps) * v + Yrr * std::sqrt(r*r + eps) * r  + Yrrr*r*r*r + v_F * T * std::sin(delta))/(M + Yv_dot),
+        (Yv * vr + Yr * r + Yvv * std::sqrt(vr*vr + eps) * vr + Yrr * std::sqrt(r*r + eps) * r  + Yrrr*r*r*r + v_F * T * std::sin(delta))/(M + Yv_dot),
 
-        (Nr * r + Nv * v + Nrr * std::sqrt(r*r + eps) * r + Nrrr*r*r*r - r_F * T * std::sin(delta))/(I + Nr_dot)
+        (Nr * r + Nv * vr + Nrr * std::sqrt(r*r + eps) * r + Nrrr*r*r*r - r_F * T * std::sin(delta))/(I + Nr_dot)
     }};
 
     // -----------------------------

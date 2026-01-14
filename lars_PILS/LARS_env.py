@@ -51,10 +51,10 @@ class ShipSimulator(Node):
         self.MS_psi = 0 * np.pi / 180.0
 
         self.CD_x = (289577.66 + 291591.05) * 0.5
-        self.CD_y = (4117065.30 + 4118523.52) * 0.5 - 10.0
+        self.CD_y = (4117065.30 + 4118523.52) * 0.5 - 13.0
         self.CD_psi = 0 * np.pi / 180.0
 
-        self.stream_speed = 2.0
+        self.stream_speed = 3.0
 
 
     def wave_disturbance(self, disturbance_state, wave_direction, wind_speed, omega, lamda, Kw, sigmaF1, sigmaF2, dt):
@@ -154,7 +154,7 @@ class ShipSimulator(Node):
         delta = self.now_delta
         F_cmd = self.now_F
         
-        print(F_cmd)
+        # print(F_cmd)
 
         # # ------------------------------------- Disturbance ------------------------------------- 
         wind_direction = 0.1
@@ -214,6 +214,10 @@ class ShipSimulator(Node):
         u_dis = 0.0
         v_dis = 0.0
         r_dis = 0.0
+
+        u_dis = -np.sin(0.01*self.tt)*0.1
+        v_dis = -0.05*np.cos(psi) + np.cos(0.01*self.tt)*0.03
+        r_dis = np.sin(0.01*self.tt)*np.cos(0.01*self.tt)*0.02
         
 
         
@@ -228,36 +232,14 @@ class ShipSimulator(Node):
         # Y_scale = 0.5*lou*B*B*B
         # N_scale = 0.5*lou*L*L*L*U_ref*U_ref
 
-        X_scale = 0.5*lou*L*L
-        Y_scale = 0.5*lou*B*B
-        N_scale = 0.5*lou*L*L*L
+        X_scale = 0.5*lou*L*L*L
+        Y_scale = 0.5*lou*B*B*B
+        N_scale = 0.5*lou*L*L*L*L*L
 
-        # Xu      =0.0*X_scale
-        # Xuu     =-9.842*0.001*X_scale
-        # Yv      =-1.81*0.01*Y_scale
-        # Yvv     =0.0*Y_scale
-        # Yr      =-7.538*0.001*Y_scale
-        # Yrr     =0.0*Y_scale
-        # Yrrr    =-1.4093*0.01*Y_scale
-        # Nr      =-4.4614*0.001*N_scale*0.1
-        # Nrr     =0.0*N_scale
-        # Nrrr    =0.0#1.549*0.01*N_scale
-        # Nv      =-4.707*0.001*N_scale*0.1
 
         
         scale = 0.5*lou*U_ref
 
-        # Xu      =0.0*scale
-        # Xuu     =-9.842*0.001*scale*L*L
-        # Yv      =-1.81*0.01*scale*B*B
-        # Yvv     =0.0*scale*B*B
-        # Yr      =-7.538*0.001*B*B
-        # Yrr     =0.0*scale*B*B
-        # Yrrr    =-1.4093*0.01*B*B
-        # Nr      =-4.4614*0.001*L*L
-        # Nrr     =0.0*scale*L*L
-        # Nrrr    =1.549*0.01*scale*L*L
-        # Nv      =-4.707*0.001*scale*L*L
         Xu      =0.0*scale
         Xuu     =-98
         Yv      =-1.81*0.01*scale*B*B
@@ -267,15 +249,16 @@ class ShipSimulator(Node):
         Yrrr    =-1.4093*0.01*scale*B*B*B
         Nr      =-4.4614*0.001*scale*L*L*L*L
         Nrr     =0.0*scale*L*L*L*L
-        Nrrr    =1.549*0.01*scale*L*L*L*L
+        Nrrr    =0.0#1.549*0.01*scale*L*L*L*L
         Nv      =-4.707*0.001*scale*L*L*L
 
-        # print(Xu, Xuu, Yv, Yvv, Yr, Yrrr, Nr, Nrr, Nrrr, Nv)
 
         if F_cmd >= 0:
             thrust_force = 3500*(F_cmd/5000)*(F_cmd/5000)
         else:
             thrust_force = -3500*(F_cmd/5000)*(F_cmd/5000)
+
+
 
         u_F     =100
         v_F     =100
@@ -289,17 +272,24 @@ class ShipSimulator(Node):
         M       =4282.0
         I       =9050.0
 
-        print(F_cmd, delta)
+        # print(F_cmd, delta)
+
         # Dynamics
-        u_dot = (Xu*u + Xuu * np.sqrt(u * u + eps) * u + thrust_force*np.cos(delta))/(M + Xu_dot) + u_dis
-        v_dot = (Yv*v + Yr*r + Yvv * np.sqrt(v* v + eps) * v + Yrrr*r*r*r + thrust_force*np.sin(delta))/(M + Yv_dot) + v_dis
-        r_dot = (Nr*r + Nv*v + Nrr * np.sqrt(r * r + eps) * r + Nrrr*r*r*r - 3.5*thrust_force*np.sin(delta))/(I + Nr_dot) + r_dis
+        self.real_stream = self.stream_speed + np.sin(0.01*self.tt)*0.5
+        ur = u + self.real_stream*np.cos(psi)
+        vr = v - self.real_stream*np.sin(psi)
+
+        # print(self.real_stream)
+
+        u_dot = (Xu*ur + Xuu * np.sqrt(ur * ur + eps) * ur + thrust_force*np.cos(delta))/(M + Xu_dot) + u_dis
+        v_dot = (Yv*vr + Yr*r + Yvv * np.sqrt(vr* vr + eps) * vr + Yrrr*r*r*r + thrust_force*np.sin(delta))/(M + Yv_dot) + v_dis
+        r_dot = (Nr*r + Nv*vr + Nrr * np.sqrt(r * r + eps) * r + Nrrr*r*r*r - 3.5*thrust_force*np.sin(delta))/(I + Nr_dot) + r_dis
         # print(u, v, r, F_cmd)
         # print(u_dot, v_dot, r_dot)
 
         # Kinematics
-        self.real_stream = self.stream_speed #+ 1.0*np.cos(0.01*self.tt)
-        x_dot = u*np.cos(psi) - v*np.sin(psi) - self.real_stream
+         #+ 1.0*np.cos(0.01*self.tt)
+        x_dot = u*np.cos(psi) - v*np.sin(psi)
         y_dot = u*np.sin(psi) + v*np.cos(psi)
         psi_dot = r
 
@@ -342,7 +332,7 @@ class ShipSimulator(Node):
         h_dock_right = a*np.tanh(b*(x0 - (np.cos(self.CD_psi)*xr + np.sin(self.CD_psi)*yr))) + y0 + np.sin(self.CD_psi)*xr - np.cos(self.CD_psi)*yr
         # print("[Dock CBF] Left : ",h_dock_left,", ",h_dock_right )
         # print("stream speed : ", self.real_stream)
-
+        
 
         return next_state
 

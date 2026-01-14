@@ -123,11 +123,6 @@ public:
 
         only_xypsi = true;
 
-        double final_boost_radius = 3.0;
-        double final_end_radius = 1.0;
-    
-        double hp = 3;
-    
         // === Create ACADOS solver ===
         capsule_ = heron_acados_create_capsule();
 
@@ -278,36 +273,6 @@ private:
                 else if (key == "cbf_x0") set_if(key, cbf_x0, v);
                 else if (key == "cbf_y0") set_if(key, cbf_y0, v);
 
-                else if (key == "hp") set_if(key, hp, v);
-                else if (key == "final_boost_radius") set_if(key, final_boost_radius, v);
-                else if (key == "final_end_radius") set_if(key, final_end_radius, v);
-
-                // ---- MPC Q ----
-                else if (key == "Q_x")     set_if(key, Q_x, v);
-                else if (key == "Q_y")     set_if(key, Q_y, v);
-                else if (key == "Q_psi")   set_if(key, Q_psi, v);
-                else if (key == "Q_u")     set_if(key, Q_u, v);
-                else if (key == "Q_v")     set_if(key, Q_v, v);
-                else if (key == "Q_r")     set_if(key, Q_r, v);
-                else if (key == "Q_delta") set_if(key, Q_delta, v);
-                else if (key == "Q_F")     set_if(key, Q_F, v);
-
-                // ---- MPC QN ----
-                else if (key == "QN_x")     set_if(key, QN_x, v);
-                else if (key == "QN_y")     set_if(key, QN_y, v);
-                else if (key == "QN_psi")   set_if(key, QN_psi, v);
-                else if (key == "QN_u")     set_if(key, QN_u, v);
-                else if (key == "QN_v")     set_if(key, QN_v, v);
-                else if (key == "QN_r")     set_if(key, QN_r, v);
-                else if (key == "QN_delta") set_if(key, QN_delta, v);
-                else if (key == "QN_F")     set_if(key, QN_F, v);
-
-                // ---- MPC R ----
-                else if (key == "R_ddelta") set_if(key, R_ddelta, v);
-                else if (key == "R_dF")     set_if(key, R_dF, v);
-
-
-            
             }
             catch (...) {
                 RCLCPP_WARN(this->get_logger(),
@@ -599,7 +564,6 @@ private:
         // 5초마다만 txt reload
         if ((now - last_param_update_time_).seconds() >= 5.0) {
             loadParamsFromTxt(param_txt_path_);
-            applyCostWeights(); 
             last_param_update_time_ = now;
         }
 
@@ -752,28 +716,6 @@ private:
             delta_ = -6000*3.1415/180;
         }
         
-
-        // Final_phase thrust
-        if (final_get_in){
-            double recovery_x = x_ - CD_x - offset_x_;
-            double recovery_y = y_ - CD_y - offset_y_;
-
-            if (!mission_over){
-                if (sqrt(recovery_x*recovery_x + recovery_y*recovery_y) < final_end_radius){
-                    mission_over = true;
-                }
-                else{
-                    F_ = 20;
-                    delta_ = 0.0;
-                }
-            }
-            else{
-                F_ = 0;
-                delta_ = 0;
-            }
-
-        }
-
         // ---- PWM 변환 + Publish ----
         double delta_pwm = convertSteeringToPWM(delta_*0.01);
         double thrust_pwm = convertThrustToPWM(F_);
@@ -935,7 +877,7 @@ private:
         // =====================================
         // BRS 이탈 → 동조 기동 추종으로 복귀
         // =====================================
-        if (!BRS_exist_ && lars_mode_ == 1)
+        if (!BRS_exist_)
         {
             lars_mode_ = 0.0;
             switch_1   = 0.0;
@@ -964,32 +906,10 @@ private:
             wpt_psi = CD_psi;
             switch_1 = 1.0;
         }
-        else if (lars_mode_ == 2.0)
-        {
-            wpt_x   = CD_x;
-            wpt_y   = CD_y;
-            wpt_psi = CD_psi;
-            switch_1 = 1.0; // 또는 final 전용 switch
-        }
     }
     
     void checkWaypointHoldAndSwitch()
     {
-        /// Terminal acting ///
-        double hp_x = x_ + hp*cos(yaw_) - offset_x_;
-        double hp_y = y_ + hp*sin(yaw_) - offset_y_;
-        // RCLCPP_WARN(this->get_logger(),
-        // "dock_check : %.2f",
-        // sqrt((hp_x - CD_x)*(hp_x - CD_x) + (hp_y - CD_y)*(hp_y - CD_y)));
-        if (sqrt((hp_x - CD_x)*(hp_x - CD_x) + (hp_y - CD_y)*(hp_y - CD_y)) < final_boost_radius){
-            lars_mode_ = 2;
-            final_get_in = true;
-
-            RCLCPP_WARN(this->get_logger(),
-            "Lars_mode : %.2f",
-            lars_mode_);
-        }
-        
         // already promoted → do nothing
         if (lars_auto_triggered_) return;
     
@@ -1006,7 +926,7 @@ private:
     
         auto now = this->get_clock()->now();
     
-        if ((dist <= dp_dist) && (lars_mode_ == 0))
+        if (dist <= dp_dist)
         {
             if (!inside_wpt_radius_)
             {
@@ -1031,78 +951,8 @@ private:
         {
             inside_wpt_radius_ = false;
         }
-
-
     }
     
-    void applyCostWeights()
-    {
-        // ----------------------------------
-        // Stage W (HERON_NY x HERON_NY)
-        // y = [x,y,psi,u,v,r,delta,F, d_delta, d_F]
-        // ----------------------------------
-        std::vector<double> W(HERON_NY * HERON_NY, 0.0);
-    
-        auto set_diag = [&](int idx, double val){
-            W[idx * HERON_NY + idx] = 2.0 * val; // Python의 2*diag와 동일
-        };
-    
-        // Q (state 8) : index 0..7
-        set_diag(0, Q_x);
-        set_diag(1, Q_y);
-        set_diag(2, Q_psi);
-        set_diag(3, Q_u);
-        set_diag(4, Q_v);
-        set_diag(5, Q_r);
-        set_diag(6, Q_delta);
-        set_diag(7, Q_F);
-    
-        // R (input 2) : index 8..9
-        set_diag(8, R_ddelta); // d_delta
-        set_diag(9, R_dF);     // d_F
-    
-        for (int j = 0; j < N_; ++j)
-        {
-            ocp_nlp_cost_model_set(
-                capsule_->nlp_config,
-                capsule_->nlp_dims,
-                capsule_->nlp_in,
-                j,
-                "W",
-                W.data()
-            );
-        }
-    
-        // ----------------------------------
-        // Terminal WN (HERON_NYN x HERON_NYN)
-        // yN = [x,y,psi,u,v,r,delta,F]
-        // ----------------------------------
-        std::vector<double> WN(HERON_NYN * HERON_NYN, 0.0);
-    
-        auto set_diagN = [&](int idx, double val){
-            WN[idx * HERON_NYN + idx] = 2.0 * val;
-        };
-    
-        set_diagN(0, QN_x);
-        set_diagN(1, QN_y);
-        set_diagN(2, QN_psi);
-        set_diagN(3, QN_u);
-        set_diagN(4, QN_v);
-        set_diagN(5, QN_r);
-        set_diagN(6, QN_delta);
-        set_diagN(7, QN_F);
-    
-        ocp_nlp_cost_model_set(
-            capsule_->nlp_config,
-            capsule_->nlp_dims,
-            capsule_->nlp_in,
-            N_,
-            "W",
-            WN.data()
-        );
-    }
-    
-
 
     void setInitialStateBounds()
     {
@@ -1241,10 +1091,6 @@ private:
 
     bool only_xypsi;
 
-    double Q_x=1e3, Q_y=1e3, Q_psi=1e5, Q_u=1e1, Q_v=1e3, Q_r=1e2, Q_delta=1e1, Q_F=1e-1;
-    double QN_x=1e5, QN_y=1e5, QN_psi=1e4, QN_u=1e-2, QN_v=1e-1, QN_r=1e2, QN_delta=1e1, QN_F=1e-1;
-    double R_ddelta=1e2, R_dF=1e-2;
-
 
     std::string param_txt_path_ = "/home/user/aura_ws/src/lars/config/mpc_params.txt";
 
@@ -1264,11 +1110,8 @@ private:
 
     // Final mode
     bool final_get_in = false;
-    bool mission_over = false;
-    double final_boost_radius;
-    double final_end_radius;
 
-    double hp;
+    double hp = 3;
 
     // ===================================================
     // BRS GRID (Python 정의와 정합)
