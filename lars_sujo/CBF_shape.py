@@ -39,7 +39,7 @@ CD_x, CD_y = 0.0, 0.0
 CD_psi = np.deg2rad(0.0)
 
 a = 3.0     # hopper half-height
-b = 0.5     # 곡률 (얼마나 급하게 열리는지)
+b = 0.3     # 곡률 (얼마나 급하게 열리는지)
 x0 = -5.0    # hopper 목 위치
 y0 = 3.5    # 중심 오프셋
 

@@ -282,29 +282,6 @@ private:
                 else if (key == "final_boost_radius") set_if(key, final_boost_radius, v);
                 else if (key == "final_end_radius") set_if(key, final_end_radius, v);
 
-                // ---- MPC Q ----
-                else if (key == "Q_x")     set_if(key, Q_x, v);
-                else if (key == "Q_y")     set_if(key, Q_y, v);
-                else if (key == "Q_psi")   set_if(key, Q_psi, v);
-                else if (key == "Q_u")     set_if(key, Q_u, v);
-                else if (key == "Q_v")     set_if(key, Q_v, v);
-                else if (key == "Q_r")     set_if(key, Q_r, v);
-                else if (key == "Q_delta") set_if(key, Q_delta, v);
-                else if (key == "Q_F")     set_if(key, Q_F, v);
-
-                // ---- MPC QN ----
-                else if (key == "QN_x")     set_if(key, QN_x, v);
-                else if (key == "QN_y")     set_if(key, QN_y, v);
-                else if (key == "QN_psi")   set_if(key, QN_psi, v);
-                else if (key == "QN_u")     set_if(key, QN_u, v);
-                else if (key == "QN_v")     set_if(key, QN_v, v);
-                else if (key == "QN_r")     set_if(key, QN_r, v);
-                else if (key == "QN_delta") set_if(key, QN_delta, v);
-                else if (key == "QN_F")     set_if(key, QN_F, v);
-
-                // ---- MPC R ----
-                else if (key == "R_ddelta") set_if(key, R_ddelta, v);
-                else if (key == "R_dF")     set_if(key, R_dF, v);
 
 
             
@@ -599,7 +576,6 @@ private:
         // 5초마다만 txt reload
         if ((now - last_param_update_time_).seconds() >= 5.0) {
             loadParamsFromTxt(param_txt_path_);
-            applyCostWeights(); 
             last_param_update_time_ = now;
         }
 
@@ -1035,74 +1011,6 @@ private:
 
     }
     
-    void applyCostWeights()
-    {
-        // ----------------------------------
-        // Stage W (HERON_NY x HERON_NY)
-        // y = [x,y,psi,u,v,r,delta,F, d_delta, d_F]
-        // ----------------------------------
-        std::vector<double> W(HERON_NY * HERON_NY, 0.0);
-    
-        auto set_diag = [&](int idx, double val){
-            W[idx * HERON_NY + idx] = 2.0 * val; // Python의 2*diag와 동일
-        };
-    
-        // Q (state 8) : index 0..7
-        set_diag(0, Q_x);
-        set_diag(1, Q_y);
-        set_diag(2, Q_psi);
-        set_diag(3, Q_u);
-        set_diag(4, Q_v);
-        set_diag(5, Q_r);
-        set_diag(6, Q_delta);
-        set_diag(7, Q_F);
-    
-        // R (input 2) : index 8..9
-        set_diag(8, R_ddelta); // d_delta
-        set_diag(9, R_dF);     // d_F
-    
-        for (int j = 0; j < N_; ++j)
-        {
-            ocp_nlp_cost_model_set(
-                capsule_->nlp_config,
-                capsule_->nlp_dims,
-                capsule_->nlp_in,
-                j,
-                "W",
-                W.data()
-            );
-        }
-    
-        // ----------------------------------
-        // Terminal WN (HERON_NYN x HERON_NYN)
-        // yN = [x,y,psi,u,v,r,delta,F]
-        // ----------------------------------
-        std::vector<double> WN(HERON_NYN * HERON_NYN, 0.0);
-    
-        auto set_diagN = [&](int idx, double val){
-            WN[idx * HERON_NYN + idx] = 2.0 * val;
-        };
-    
-        set_diagN(0, QN_x);
-        set_diagN(1, QN_y);
-        set_diagN(2, QN_psi);
-        set_diagN(3, QN_u);
-        set_diagN(4, QN_v);
-        set_diagN(5, QN_r);
-        set_diagN(6, QN_delta);
-        set_diagN(7, QN_F);
-    
-        ocp_nlp_cost_model_set(
-            capsule_->nlp_config,
-            capsule_->nlp_dims,
-            capsule_->nlp_in,
-            N_,
-            "W",
-            WN.data()
-        );
-    }
-    
-
 
     void setInitialStateBounds()
     {
@@ -1240,10 +1148,6 @@ private:
     double cbf_y0;
 
     bool only_xypsi;
-
-    double Q_x=1e3, Q_y=1e3, Q_psi=1e5, Q_u=1e1, Q_v=1e3, Q_r=1e2, Q_delta=1e1, Q_F=1e-1;
-    double QN_x=1e5, QN_y=1e5, QN_psi=1e4, QN_u=1e-2, QN_v=1e-1, QN_r=1e2, QN_delta=1e1, QN_F=1e-1;
-    double R_ddelta=1e2, R_dF=1e-2;
 
 
     std::string param_txt_path_ = "/home/user/aura_ws/src/lars/config/mpc_params.txt";
