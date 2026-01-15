@@ -1,0 +1,129 @@
+# --- docking point relative ---
+DP_x_rel=-9.0
+DP_y_rel=-1.0
+DP_psi_rel=0.0
+
+# --- offsets (global origin) ---
+offset_x=290245.0
+offset_y=4118000.0
+
+# --- cradle geometry ---
+cradle_x_rel=-4.0
+
+# --- switching logic ---
+duration_time=1.0
+dp_dist=2.0
+
+# --- stream ---
+stream_speed=3.0
+
+# --- docking logic ---
+dock_radius=2.5
+
+# --- Control Parameter ---
+hp=3.0
+alpha_side=5.0
+alpha_dock=1.0
+cbf_d=4
+cbf_a=3.0
+cbf_b=0.3
+cbf_x0=-10.0
+cbf_y0=3.5   
+
+# --- Ending phase Parameter ---
+final_boost_radius=3.0
+final_end_radius=1.0
+
+
+# =========================
+# MPC Weights (diag entries)
+# state = [x,y,psi,u,v,r,delta,F]
+# input = [d_delta, d_F]
+# =========================
+
+# ---- Stage Q ----
+Q_x     = 1e3
+Q_y     = 1e3
+Q_psi   = 1e5
+Q_u     = 1e1
+Q_v     = 1e5
+Q_r     = 1e2
+Q_delta = 1e1
+Q_F     = 1e1
+
+# ---- Terminal QN ----
+QN_x     = 1e5
+QN_y     = 1e5
+QN_psi   = 1e4
+QN_u     = 1e-2
+QN_v     = 1e-1
+QN_r     = 1e2
+QN_delta = 1e1
+QN_F     = 1e-1
+
+# ---- Input R ----
+R_ddelta = 1e1
+R_dF     = 1e-1
+
+
+
+
+# --- Model Parameter ---
+Xu=0.0
+Xuu=-0.0165
+Yv=-0.0323
+Yvv=0.0
+Yr=-0.0
+Yrr=0.0
+Yrrr=-0.0
+Nr=-1.359
+Nrr=0.0
+Nrrr=0.0
+Nv=-0.1991
+u_F=0.0221
+v_F=0.0224
+r_F=0.0376
+
+Xu_dot=0.0
+Yv_dot=0.0
+Nr_dot=0.0
+M=1.0
+I=1.0
+
+
+
+
+
+# ---- Stage Q ----
+#Q_x     = 1e3
+#Q_y     = 1e3
+#Q_psi   = 1e5
+#Q_u     = 1e1
+#Q_v     = 1e3
+#Q_r     = 1e2
+#Q_delta = 1e1
+#Q_F     = 1e0
+
+# ---- Terminal QN ----
+#QN_x     = 1e5
+#QN_y     = 1e5
+#QN_psi   = 1e4
+#QN_u     = 1e-2
+#QN_v     = 1e-1
+#QN_r     = 1e2
+#QN_delta = 1e1
+#QN_F     = 1e-1
+
+# ---- Input R ----
+#R_ddelta = 1e2
+#R_dF     = 1e-2
+
+
+# ---- LOS ----
+Kp_steer=0.5
+Kp_F=0.5
+Ki_F=0.05
+dist_int=0
+dist_int_max=10.0
+
+
