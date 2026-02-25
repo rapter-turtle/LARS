@@ -1,0 +1,61 @@
+module ULARS{
+	module EO {
+		struct USVControlType {
+			short integratedTargetRPM;
+			short integratedTargetSteering;
+			short integratedBowThrust;
+		};
+
+		
+};
+
+module C2{
+
+
+		struct Waypoint {
+			double latitude;
+			double longitude;
+			unsigned long lateralErrorTolerance;
+			unsigned long goalErrorTolerance;
+			unsigned long maxVelocity;
+		};
+
+		struct GlobalWaypointType {
+			short commandID;
+			sequence<Waypoint> waypointData;
+
+		};
+
+		struct StatusType {
+			double USV_x;
+			double USV_y;
+			double USV_h;
+			double MSHIP_x;
+			double MSHIP_y;
+			double MSHIP_h;
+			double Craddle_x1;
+			double Craddle_y1;
+			double Craddle_x2;
+			double Craddle_y2;
+			double Craddle_x3;
+			double Craddle_y3;
+			double Craddle_x4;
+			double Craddle_y4;
+			double Craddle_h;
+
+		};
+
+		struct ObstacleType {
+			double Obs_x;
+			double Obs_y;
+			double Obs_h;
+
+		};
+
+		struct CommandInitialType {
+			short commandID;
+
+		};
+
+};
+};
