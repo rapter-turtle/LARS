@@ -1,0 +1,119 @@
+
+# --- stream ---
+stream_speed=0.1
+
+# --- Control Parameter ---
+hp=0.3
+alpha_side=5.0
+alpha_dock=10.0
+cbf_d=10.0
+cbf_a=0.7
+cbf_b=0.2
+cbf_x0=0.0
+cbf_y0=0.7   
+
+# --- docking point relative ---
+#DP_x_rel=9.5
+#DP_y_rel=5.0
+DP_psi_rel=0.0
+#DP_x_rel=10.0
+#DP_y_rel=0.4
+
+#DP_x_rel=7.3
+
+#DP_x_rel=8.0
+#DP_y_rel=-9.2
+
+
+# Cradle point
+#wpt_x1=13.5
+#wpt_y1=-0.0
+#wpt_x1=9.0
+#wpt_y1=-9.7
+
+DP_x_rel=9.0
+DP_y_rel=6.9
+
+wpt_x1=10.8
+wpt_y1=6.5
+
+
+# Mother ship point
+#wpt_x2=9.0
+#wpt_y2=-9.7
+
+wpt_x2=10.8
+wpt_y2=6.4
+
+#wpt_x2=13.0
+#wpt_y2=-0.5
+
+# --- switching logic ---
+duration_time=5.0
+dp_dist=1.0
+
+############## point control ##############
+# ---- Stage Q ----
+Q_x     = 1e5
+Q_y     = 1e5
+Q_psi   = 1e5
+Q_u     = 1e5
+Q_v     = 1e-1
+Q_r     = 1e2
+Q_delta = 1e-1
+Q_F     = 1e3
+
+# ---- Terminal QN ----
+QN_x     = 1e6
+QN_y     = 1e6
+QN_psi   = 1e6
+QN_u     = 1e5
+QN_v     = 1e-1
+QN_r     = 1e2
+QN_delta = 1e-1
+QN_F     = 1e3
+
+# ---- Input R ----
+R_ddelta = 1e2
+R_dF     = 1e4
+
+
+# --- Model Parameter ---
+Xu=-0.012
+Xuu=-0.0
+Yv=0.0
+Yvv=-0.435
+Yr=-0.021
+Yrr=0.0
+Yrrr=0.0
+Nr=-0.425
+Nrr=0.0
+Nrrr=0.0
+Nv=-0.027
+u_F=0.031
+v_F=0.011
+r_F=0.2
+
+Xu_dot=0.0
+Yv_dot=0.0
+Nr_dot=0.0
+M=1.0
+I=1.0
+
+
+
+# --- docking logic ---
+dock_radius=2.5
+
+# --- Ending phase Parameter ---
+final_boost_radius=3.0
+final_end_radius=1.0
+
+
+# --- offsets (global origin) ---
+offset_x=0.0
+offset_y=0.0
+
+# --- cradle geometry ---
+cradle_x_rel=-4.0
+

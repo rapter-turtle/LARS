@@ -1,0 +1,179 @@
+
+
+
+
+# --- offsets (global origin) ---
+offset_x=0.0
+offset_y=0.0
+
+# --- cradle geometry ---
+cradle_x_rel=-4.0
+
+
+# --- docking logic ---
+dock_radius=2.5
+
+# --- Control Parameter ---
+hp=3.0
+alpha_side=5.0
+alpha_dock=0.3
+cbf_d=4
+cbf_a=3.0
+cbf_b=0.3
+cbf_x0=-10.0
+cbf_y0=3.5   
+
+# --- Ending phase Parameter ---
+final_boost_radius=3.0
+final_end_radius=1.0
+
+
+# =========================
+# MPC Weights (diag entries)
+# state = [x,y,psi,u,v,r,delta,F]
+# input = [d_delta, d_F]
+# =========================
+
+# ---- Stage Q ----
+Q_x     = 1e3
+Q_y     = 1e3
+Q_psi   = 1e5
+Q_u     = 1e2
+Q_v     = 1e5
+Q_r     = 1e2
+Q_delta = 1e1
+Q_F     = 1e1
+
+# ---- Terminal QN ----
+QN_x     = 1e5
+QN_y     = 1e5
+QN_psi   = 1e4
+QN_u     = 1e-2
+QN_v     = 1e-1
+QN_r     = 1e2
+QN_delta = 1e1
+QN_F     = 1e-1
+
+# ---- Input R ----
+R_ddelta = 1e1
+R_dF     = 1e-1
+
+
+ 
+
+# --- Model Parameter ---
+Xu=-0.1985
+Xuu=-0.0
+Yv=0.0
+Yvv=-0.13
+Yr=0.0
+Yrr=0.0
+Yrrr=0.0
+Nr=-0.35
+Nrr=0.0
+Nrrr=0.0
+Nv=0.0
+u_F=0.0594
+v_F=0.007
+r_F=0.157
+
+Xu_dot=0.0
+Yv_dot=0.0
+Nr_dot=0.0
+M=1.0
+I=1.0
+
+
+
+
+# ---- Stage Q ----
+#Q_x     = 1e3
+#Q_y     = 1e3
+#Q_psi   = 1e5
+#Q_u     = 1e1
+#Q_v     = 1e3
+#Q_r     = 1e2
+#Q_delta = 1e1
+#Q_F     = 1e0
+
+# ---- Terminal QN ----
+#QN_x     = 1e5
+#QN_y     = 1e5
+#QN_psi   = 1e4
+#QN_u     = 1e-2
+#QN_v     = 1e-1
+#QN_r     = 1e2
+#QN_delta = 1e1
+#QN_F     = 1e-1
+
+# ---- Input R ----
+#R_ddelta = 1e2
+#R_dF     = 1e-2
+
+# ---- no stream ----
+#gamma=0.6
+#lookahead=3.0       
+#Kp_steer=-200.0       
+#Kd_steer=0.0  
+#Ki_steer=0.0
+#Kp_F=0.2
+#Ki_F=0.001
+
+DP_psi_rel=0.0
+
+ 
+# --- docking point relative ---
+DP_x_rel=10.0
+DP_y_rel=0.1
+
+#DP_x_rel=9.5
+#DP_y_rel=1.5
+
+#DP_x_rel=7.3
+#DP_y_rel=-9.2
+
+#DP_x_rel=9.0
+#DP_y_rel=6.9
+
+wpt_x1=13.5
+wpt_y1=-0.1
+
+#wpt_x1=9.0
+#wpt_y1=-9.7
+
+#wpt_x1=10.8
+#wpt_y1=6.4
+
+# --- switching logic ---
+duration_time=5.0
+dp_dist=0.7
+
+
+# --- stream ---
+strrream_speed=0.5
+ 
+# ---- LOS ----
+gamma=0.6
+lookahead=1.0       
+#Kp_steer=-200.0
+Kp_steer=-160.0       
+Kd_steer=10.0  
+Ki_steer=0.0
+Kp_F=4.0
+Ki_F=0.0
+
+lateral_speed=0.2
+
+dock_start_distance=1.0
+mode_changrrre_distance=20.0
+
+wpt_x2=13.0
+wpt_y2=4.0
+
+wpt_x3=8.0
+wpt_y3=5.0
+
+wpt_x4=8.0
+wpt_y4=2.0
+
+acceptance_radius=1.5
